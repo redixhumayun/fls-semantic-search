@@ -2,7 +2,7 @@
 
 ## Goal
 
-Build a semantic search layer over FLS experiment data so researchers can query video frames and drone telemetry using natural language and discover semantic relationships between them.
+Build a first version of a semantic search layer over FLS experiment data so researchers can browse experiments, inspect representative snapshots, and query experiment metadata using natural language.
 
 ---
 
@@ -29,16 +29,16 @@ Python CLI run on the orchestrator laptop. It uploads an already-written experim
 Receives uploaded experiments, persists raw data to R2, triggers embedding generation, and serves the frontend/query interface.
 
 ### Frontend
-Provides a calendar/drilldown view and natural-language query interface over generated embeddings.
+Provides a calendar/drilldown view and natural-language query interface over experiments and representative snapshots.
 
 ---
 
 ## Data Flow
 
-1. Experiment runs and produces frames + telemetry on the orchestrator.
+1. Experiment runs and produces telemetry logs and, when available, video on the orchestrator.
 2. Researcher runs `fls-upload --experiment <path>`.
 3. Server stores raw data in R2.
-4. Server generates embeddings for frames and telemetry.
+4. Server derives experiment metadata, selects representative snapshots, and generates embeddings.
 5. Researcher queries results through the frontend.
 
 ---
@@ -46,15 +46,16 @@ Provides a calendar/drilldown view and natural-language query interface over gen
 ## Key Decisions
 
 - Storage: Cloudflare R2 for low-cost persistence
-- Embeddings: CLIP, using images for frames and text representations for telemetry
+- Embeddings: CLIP, using representative images and text representations of metadata
 - Frontend: Streamlit
 - LLM layer: DSPy with a local default model and optional BYOK API support
+- V1 scope: simple and fast to deploy, with a modular design so components like CLIP can be swapped later
 
 ---
 
 ## Open Questions
 
-1. Where should the server run?
-   Reason: the server is responsible for receiving uploads, persisting data, running embedding generation, and serving the UI. If it also runs a local model, it needs enough compute for that.
-2. How should telemetry be converted to text before embedding?
-   Reason: CLIP can embed images and text, but not raw telemetry JSON. This choice directly affects embedding quality and what kinds of semantic queries the system can support.
+1. What metadata should be attached to each representative snapshot?
+   Reason: the professor suggested using experiment type, duration, number of FLSs, illumination shape, interaction type, and 5 representative images. The exact snapshot-level metadata will determine what the first version can query.
+2. How should the 3 in-between images be selected and recorded?
+   Reason: take-off and landing are fixed, but the 3 intermediate images must be chosen and stored as part of the experiment metadata so the selection is reproducible and can be refined later.
