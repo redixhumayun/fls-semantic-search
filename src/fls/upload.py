@@ -60,14 +60,12 @@ def cli() -> None:
 
     storage = R2Storage.from_env()
 
-    # Upload metadata.json (generated in memory — does not touch the source directory)
     metadata = _generate_metadata(exp_path, args.experiment_type, timestamp, args.notes)
     metadata_bytes = json.dumps(metadata, indent=2).encode()
     print(f"Uploading to {prefix}/")
     storage.upload_bytes(metadata_bytes, f"{prefix}/metadata.json", content_type="application/json")
     print("  metadata.json ✓")
 
-    # Upload all files from the experiment directory, preserving structure
     files = sorted(f for f in exp_path.rglob("*") if f.is_file())
     if not files:
         print("  (no files found in experiment directory)", file=sys.stderr)
