@@ -2,7 +2,7 @@
 
 ---
 
-## V0 — Updated Scope (Post-Professor Meeting)
+## V0 — Updated Scope (Post-Professor Meeting, April 14 2026)
 
 **Primary users:** Researchers, NSF sponsors, global researchers, high school students. Interface must be intuitive for non-technical audiences.
 
