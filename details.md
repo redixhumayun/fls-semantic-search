@@ -4,6 +4,8 @@
 
 ## V0 — Updated Scope (Post-Professor Meeting, April 14 2026)
 
+Figma design: https://www.figma.com/design/HQvMkRskCm7n6ypPSRpoLM
+
 **Primary users:** Researchers, NSF sponsors, global researchers, high school students. Interface must be intuitive for non-technical audiences.
 
 **Write path:** Skip embedding generation on upload for now. Client just dumps raw experiment data into R2 object storage. Embeddings can be generated separately.
