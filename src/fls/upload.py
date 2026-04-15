@@ -1,6 +1,7 @@
 import argparse
 import json
 import sys
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -57,13 +58,15 @@ def cli() -> None:
 
     timestamp = datetime.now(timezone.utc)
     prefix = _r2_prefix(timestamp, args.experiment_type)
-
     storage = R2Storage.from_env()
 
-    metadata = _generate_metadata(exp_path, args.experiment_type, timestamp, args.notes)
-    metadata_bytes = json.dumps(metadata, indent=2).encode()
     print(f"Uploading to {prefix}/")
-    storage.upload_bytes(metadata_bytes, f"{prefix}/metadata.json", content_type="application/json")
+
+    metadata = _generate_metadata(exp_path, args.experiment_type, timestamp, args.notes)
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=True) as tmp:
+        json.dump(metadata, tmp, indent=2)
+        tmp.flush()
+        storage.upload_file(Path(tmp.name), f"{prefix}/metadata.json")
     print("  metadata.json ✓")
 
     files = [f for f in exp_path.rglob("*") if f.is_file()]
@@ -73,8 +76,7 @@ def cli() -> None:
 
     for file_path in files:
         relative = file_path.relative_to(exp_path)
-        r2_key = f"{prefix}/{relative}"
+        storage.upload_file(file_path, f"{prefix}/{relative}")
         print(f"  {relative} ✓")
-        storage.upload_file(file_path, r2_key)
 
     print(f"\nDone. {len(files) + 1} file(s) stored at: {prefix}")

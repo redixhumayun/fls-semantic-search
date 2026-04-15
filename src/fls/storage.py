@@ -67,17 +67,3 @@ class R2Storage:
         """
         self.client.upload_file(str(local_path), self.bucket, r2_key)
 
-    def upload_bytes(self, data: bytes, r2_key: str, content_type: str = "application/octet-stream") -> None:
-        """Upload raw bytes to R2.
-
-        Args:
-            data: Bytes to upload.
-            r2_key: Destination key in the R2 bucket.
-            content_type: MIME type of the content.
-        """
-        self.client.put_object(
-            Bucket=self.bucket,
-            Key=r2_key,
-            Body=data,
-            ContentType=content_type,
-        )
