@@ -12,3 +12,6 @@ build/
 # uv
 .uv/
 uv.lock
+
+# Test data
+test_data/
