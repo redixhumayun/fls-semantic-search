@@ -5,7 +5,7 @@ import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .storage import R2Storage
+from .storage import DriveStorage
 
 
 def _generate_metadata(
@@ -58,7 +58,7 @@ def cli() -> None:
 
     timestamp = datetime.now(timezone.utc)
     prefix = _r2_prefix(timestamp, args.experiment_type)
-    storage = R2Storage.from_env()
+    storage = DriveStorage.from_env()
 
     print(f"Uploading to {prefix}/")
 
