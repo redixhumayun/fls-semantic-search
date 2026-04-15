@@ -3,59 +3,98 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
-from google.oauth2 import service_account
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
+from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 
 load_dotenv()
 
 _SCOPES = ["https://www.googleapis.com/auth/drive"]
-_ROOT_FOLDER_NAME = "FLS Experiment Data"
+_DEFAULT_TOKEN_PATH = Path.home() / ".config" / "fls" / "token.json"
+
+
+def _get_credentials(client_secret_path: str, token_path: Path) -> Credentials:
+    """Load credentials from token file, refreshing or re-authenticating as needed.
+
+    On first run this opens a browser window for the user to log in. The resulting
+    token (including refresh token) is saved to token_path for subsequent runs.
+
+    Args:
+        client_secret_path: Path to the OAuth client secret JSON file.
+        token_path: Path where the token file is stored between runs.
+
+    Returns:
+        Valid Google OAuth2 credentials.
+    """
+    creds = None
+
+    if token_path.exists():
+        creds = Credentials.from_authorized_user_file(str(token_path), _SCOPES)
+
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(client_secret_path, _SCOPES)
+            creds = flow.run_local_server(port=0)
+
+        token_path.parent.mkdir(parents=True, exist_ok=True)
+        token_path.write_text(creds.to_json())
+
+    return creds
 
 
 class DriveStorage:
-    """Google Drive storage client authenticated via a service account."""
+    """Google Drive storage client authenticated via OAuth2."""
 
-    def __init__(self, service_account_key_path: str):
+    def __init__(self, client_secret_path: str, root_folder_id: str, token_path: Path = _DEFAULT_TOKEN_PATH):
         """
         Args:
-            service_account_key_path: Path to the service account JSON key file.
+            client_secret_path: Path to the OAuth client secret JSON file.
+            root_folder_id: Drive folder ID to upload experiments into.
+            token_path: Path where the OAuth token is cached between runs.
         """
-        credentials = service_account.Credentials.from_service_account_file(
-            service_account_key_path, scopes=_SCOPES
-        )
-        self._service = build("drive", "v3", credentials=credentials)
-        self._root_folder_id = self._get_or_create_folder(_ROOT_FOLDER_NAME, parent_id=None)
+        creds = _get_credentials(client_secret_path, token_path)
+        self._service = build("drive", "v3", credentials=creds)
+        self._root_folder_id = root_folder_id
 
     @classmethod
     def from_env(cls) -> "DriveStorage":
         """Construct a DriveStorage instance from environment variables.
 
         Raises:
-            RuntimeError: If the required environment variable is missing.
+            RuntimeError: If any required environment variable is missing.
         """
-        key_path = os.environ.get("GOOGLE_SERVICE_ACCOUNT_KEY")
-        if not key_path:
+        missing = [
+            var for var in ("GOOGLE_CLIENT_SECRET", "GDRIVE_FOLDER_ID")
+            if not os.environ.get(var)
+        ]
+        if missing:
             raise RuntimeError(
-                "Missing required environment variable: GOOGLE_SERVICE_ACCOUNT_KEY\n"
-                "Copy .env.example to .env and set it to the path of your service account JSON key file."
+                f"Missing required environment variables: {', '.join(missing)}\n"
+                "Copy .env.example to .env and fill in your credentials."
             )
-        return cls(service_account_key_path=key_path)
+        return cls(
+            client_secret_path=os.environ["GOOGLE_CLIENT_SECRET"],
+            root_folder_id=os.environ["GDRIVE_FOLDER_ID"],
+        )
 
-    def _get_or_create_folder(self, name: str, parent_id: str | None) -> str:
+    def _get_or_create_folder(self, name: str, parent_id: str) -> str:
         """Return the Drive folder ID for the given name, creating it if it does not exist.
 
         Args:
             name: Folder name.
-            parent_id: Parent folder ID, or None for the service account root.
+            parent_id: Parent folder ID.
 
         Returns:
             The folder ID.
         """
-        query = f"name='{name}' and mimeType='application/vnd.google-apps.folder' and trashed=false"
-        if parent_id:
-            query += f" and '{parent_id}' in parents"
-
+        query = (
+            f"name='{name}' and mimeType='application/vnd.google-apps.folder' "
+            f"and '{parent_id}' in parents and trashed=false"
+        )
         results = self._service.files().list(q=query, fields="files(id)").execute()
         files = results.get("files", [])
         if files:
@@ -64,10 +103,8 @@ class DriveStorage:
         metadata = {
             "name": name,
             "mimeType": "application/vnd.google-apps.folder",
+            "parents": [parent_id],
         }
-        if parent_id:
-            metadata["parents"] = [parent_id]
-
         folder = self._service.files().create(body=metadata, fields="id").execute()
         return folder["id"]
 

@@ -19,5 +19,5 @@ uv.lock
 # Test data
 test_data/
 
-# Google service account credentials
-fls-recordings-*.json
+# Google credentials
+client_secret_*.json
