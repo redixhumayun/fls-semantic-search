@@ -13,6 +13,17 @@ def _generate_metadata(
     timestamp: datetime,
     notes: str,
 ) -> dict:
+    """Return the metadata dict for an experiment.
+
+    Args:
+        exp_path: Path to the experiment directory.
+        experiment_type: One of "interaction" or "illumination".
+        timestamp: UTC timestamp of the upload.
+        notes: Optional researcher notes.
+
+    Returns:
+        A dict suitable for serialisation as metadata.json.
+    """
     return {
         "experiment_name": exp_path.name,
         "date": timestamp.strftime("%Y-%m-%d"),
@@ -23,6 +34,7 @@ def _generate_metadata(
 
 
 def _r2_prefix(timestamp: datetime, experiment_type: str) -> str:
+    """Return the R2 key prefix for an experiment, e.g. fls-experiments/2025-04-09/10-30-00_interaction."""
     return (
         f"fls-experiments"
         f"/{timestamp.strftime('%Y-%m-%d')}"
@@ -31,6 +43,7 @@ def _r2_prefix(timestamp: datetime, experiment_type: str) -> str:
 
 
 def cli() -> None:
+    """Entry point for the fls-upload command."""
     parser = argparse.ArgumentParser(description="Upload an FLS experiment directory to R2.")
     parser.add_argument("--experiment", required=True, help="Path to the experiment directory.")
     parser.add_argument("--type", dest="experiment_type", required=True, choices=["interaction", "illumination"], help="Experiment type.")

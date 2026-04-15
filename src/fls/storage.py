@@ -9,6 +9,8 @@ load_dotenv()
 
 
 class R2Storage:
+    """Cloudflare R2 client using the S3-compatible API."""
+
     def __init__(
         self,
         account_id: str,
@@ -16,6 +18,13 @@ class R2Storage:
         secret_access_key: str,
         bucket: str,
     ):
+        """
+        Args:
+            account_id: Cloudflare account ID.
+            access_key_id: R2 access key ID.
+            secret_access_key: R2 secret access key.
+            bucket: R2 bucket name.
+        """
         self.bucket = bucket
         self.client = boto3.client(
             "s3",
@@ -27,6 +36,11 @@ class R2Storage:
 
     @classmethod
     def from_env(cls) -> "R2Storage":
+        """Construct an R2Storage instance from environment variables.
+
+        Raises:
+            RuntimeError: If any required environment variable is missing.
+        """
         missing = [
             var
             for var in ("R2_ACCOUNT_ID", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "R2_BUCKET_NAME")
@@ -45,9 +59,22 @@ class R2Storage:
         )
 
     def upload_file(self, local_path: Path, r2_key: str) -> None:
+        """Upload a local file to R2.
+
+        Args:
+            local_path: Path to the local file.
+            r2_key: Destination key in the R2 bucket.
+        """
         self.client.upload_file(str(local_path), self.bucket, r2_key)
 
     def upload_bytes(self, data: bytes, r2_key: str, content_type: str = "application/octet-stream") -> None:
+        """Upload raw bytes to R2.
+
+        Args:
+            data: Bytes to upload.
+            r2_key: Destination key in the R2 bucket.
+            content_type: MIME type of the content.
+        """
         self.client.put_object(
             Bucket=self.bucket,
             Key=r2_key,
