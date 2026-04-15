@@ -66,7 +66,7 @@ def cli() -> None:
     storage.upload_bytes(metadata_bytes, f"{prefix}/metadata.json", content_type="application/json")
     print("  metadata.json ✓")
 
-    files = sorted(f for f in exp_path.rglob("*") if f.is_file())
+    files = [f for f in exp_path.rglob("*") if f.is_file()]
     if not files:
         print("  (no files found in experiment directory)", file=sys.stderr)
         return
