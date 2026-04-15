@@ -1,5 +1,19 @@
 # FLS Semantic Search — Detailed Design
 
+---
+
+## V0 — Updated Scope (Post-Professor Meeting)
+
+**Primary users:** Researchers, NSF sponsors, global researchers, high school students. Interface must be intuitive for non-technical audiences.
+
+**Write path:** Skip embedding generation on upload for now. Client just dumps raw experiment data into R2 object storage. Embeddings can be generated separately.
+
+**Storage:** Structured metadata paths in R2 (directory structure as defined below remains correct).
+
+**Client:** Single self-contained Python module — not a multi-package library.
+
+---
+
 ## Goal
 
 Build a first version of a semantic search layer over FLS experiment data. The initial system should be simple and quick to deploy: it will index experiment metadata plus a small set of representative images and support iteration later.
