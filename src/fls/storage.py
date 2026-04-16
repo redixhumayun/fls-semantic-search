@@ -145,9 +145,14 @@ class DriveStorage:
             parent_id = self._get_or_create_folder(part, parent_id=parent_id)
 
         mime_type = mimetypes.guess_type(str(local_path))[0] or "application/octet-stream"
-        media = MediaFileUpload(str(local_path), mimetype=mime_type, resumable=True)
-        self._service.files().create(
+        media = MediaFileUpload(str(local_path), mimetype=mime_type, resumable=True, chunksize=5 * 1024 * 1024)
+        request = self._service.files().create(
             body={"name": filename, "parents": [parent_id]},
             media_body=media,
             fields="id",
-        ).execute()
+        )
+        response = None
+        while response is None:
+            status, response = request.next_chunk()
+            if status:
+                print(f"  Uploading {filename}... {int(status.progress() * 100)}%", end="\r", flush=True)

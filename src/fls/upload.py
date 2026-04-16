@@ -83,7 +83,7 @@ def cli() -> None:
         for file_path in files:
             relative = file_path.relative_to(exp_path)
             storage.upload_file(file_path, f"{prefix}/{relative}")
-            print(f"  {relative} ✓")
+            print(f"\r  {relative} ✓\033[K")
 
     except HttpError as e:
         sys.exit(f"Error: Drive API request failed ({e.status_code} {e.reason})")
