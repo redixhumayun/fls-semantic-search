@@ -84,8 +84,14 @@ class DriveStorage:
                 f"Missing required environment variables: {', '.join(missing)}\n"
                 "Copy .env.example to .env and fill in your credentials."
             )
+        client_secret_path = os.environ["GOOGLE_CLIENT_SECRET"]
+        if not Path(client_secret_path).exists():
+            raise RuntimeError(
+                f"Client secret file not found: {client_secret_path}\n"
+                "Check the GOOGLE_CLIENT_SECRET path in your .env file."
+            )
         return cls(
-            client_secret_path=os.environ["GOOGLE_CLIENT_SECRET"],
+            client_secret_path=client_secret_path,
             root_folder_id=os.environ["GDRIVE_FOLDER_ID"],
         )
 

@@ -5,6 +5,8 @@ import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
+from googleapiclient.errors import HttpError
+
 from .storage import DriveStorage
 
 
@@ -53,30 +55,37 @@ def cli() -> None:
 
     exp_path = Path(args.experiment)
     if not exp_path.is_dir():
-        print(f"Error: {exp_path} is not a directory.", file=sys.stderr)
-        sys.exit(1)
+        sys.exit(f"Error: {exp_path} is not a directory.")
 
     timestamp = datetime.now(timezone.utc)
     prefix = _drive_prefix(timestamp, args.experiment_type)
-    storage = DriveStorage.from_env()
+
+    try:
+        storage = DriveStorage.from_env()
+    except RuntimeError as e:
+        sys.exit(f"Error: {e}")
 
     print(f"Uploading to {prefix}/")
 
-    metadata = _generate_metadata(exp_path, args.experiment_type, timestamp, args.notes)
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=True) as tmp:
-        json.dump(metadata, tmp, indent=2)
-        tmp.flush()
-        storage.upload_file(Path(tmp.name), f"{prefix}/metadata.json")
-    print("  metadata.json ✓")
+    try:
+        metadata = _generate_metadata(exp_path, args.experiment_type, timestamp, args.notes)
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=True) as tmp:
+            json.dump(metadata, tmp, indent=2)
+            tmp.flush()
+            storage.upload_file(Path(tmp.name), f"{prefix}/metadata.json")
+        print("  metadata.json ✓")
 
-    files = [f for f in exp_path.rglob("*") if f.is_file()]
-    if not files:
-        print("  (no files found in experiment directory)", file=sys.stderr)
-        return
+        files = [f for f in exp_path.rglob("*") if f.is_file()]
+        if not files:
+            print("  (no files found in experiment directory)", file=sys.stderr)
+            return
 
-    for file_path in files:
-        relative = file_path.relative_to(exp_path)
-        storage.upload_file(file_path, f"{prefix}/{relative}")
-        print(f"  {relative} ✓")
+        for file_path in files:
+            relative = file_path.relative_to(exp_path)
+            storage.upload_file(file_path, f"{prefix}/{relative}")
+            print(f"  {relative} ✓")
+
+    except HttpError as e:
+        sys.exit(f"Error: Drive API request failed ({e.status_code} {e.reason})")
 
     print(f"\nDone. {len(files) + 1} file(s) stored at: {prefix}")
