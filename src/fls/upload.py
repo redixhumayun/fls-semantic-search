@@ -34,8 +34,8 @@ def _generate_metadata(
     }
 
 
-def _r2_prefix(timestamp: datetime, experiment_type: str) -> str:
-    """Return the R2 key prefix for an experiment, e.g. fls-experiments/2025-04-09/10-30-00_interaction."""
+def _drive_prefix(timestamp: datetime, experiment_type: str) -> str:
+    """Return the Drive folder prefix for an experiment, e.g. fls-experiments/2025-04-09/10-30-00_interaction."""
     return (
         f"fls-experiments"
         f"/{timestamp.strftime('%Y-%m-%d')}"
@@ -45,7 +45,7 @@ def _r2_prefix(timestamp: datetime, experiment_type: str) -> str:
 
 def cli() -> None:
     """Entry point for the fls-upload command."""
-    parser = argparse.ArgumentParser(description="Upload an FLS experiment directory to R2.")
+    parser = argparse.ArgumentParser(description="Upload an FLS experiment directory to Google Drive.")
     parser.add_argument("--experiment", required=True, help="Path to the experiment directory.")
     parser.add_argument("--type", dest="experiment_type", required=True, choices=["interaction", "illumination"], help="Experiment type.")
     parser.add_argument("--notes", default="", help="Optional researcher notes.")
@@ -57,7 +57,7 @@ def cli() -> None:
         sys.exit(1)
 
     timestamp = datetime.now(timezone.utc)
-    prefix = _r2_prefix(timestamp, args.experiment_type)
+    prefix = _drive_prefix(timestamp, args.experiment_type)
     storage = DriveStorage.from_env()
 
     print(f"Uploading to {prefix}/")
