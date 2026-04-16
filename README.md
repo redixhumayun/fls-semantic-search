@@ -2,7 +2,9 @@
 
 ## Setup
 
-1. Install directly from GitHub:
+1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if you don't have it.
+
+2. Install directly from GitHub:
    ```bash
    pip install git+https://github.com/redixhumayun/fls-semantic-search.git
    ```
@@ -12,7 +14,7 @@
    uv venv && uv pip install -e .
    ```
 
-2. Copy `.env.example` to `.env` and fill in your credentials:
+3. Copy `.env.example` to `.env` and fill in your credentials:
    ```bash
    cp .env.example .env
    ```
@@ -22,7 +24,7 @@
    | `GOOGLE_CLIENT_SECRET` | Path to your OAuth client secret JSON file |
    | `GDRIVE_FOLDER_ID` | ID of the shared Google Drive folder for experiment data |
 
-3. On first run, a browser window will open to authenticate with the lab Google account. The token is saved to `~/.config/fls/token.json` and reused for subsequent runs.
+4. On first run, a browser window will open to authenticate with the lab Google account. The token is saved to `~/.config/fls/token.json` and reused for subsequent runs.
 
 ## Usage
 
