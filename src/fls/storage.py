@@ -5,6 +5,7 @@ from typing import cast
 
 from dotenv import load_dotenv
 from google.oauth2.credentials import Credentials
+from google.auth.exceptions import RefreshError
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
@@ -21,6 +22,8 @@ def _get_credentials(client_secret_path: str, token_path: Path) -> Credentials:
 
     On first run this opens a browser window for the user to log in. The resulting
     token (including refresh token) is saved to token_path for subsequent runs.
+    If the refresh token has been revoked, the token file is deleted and the browser
+    flow is triggered again.
 
     Args:
         client_secret_path: Path to the OAuth client secret JSON file.
@@ -29,22 +32,24 @@ def _get_credentials(client_secret_path: str, token_path: Path) -> Credentials:
     Returns:
         Valid Google OAuth2 credentials.
     """
-    creds = None
-
     if token_path.exists():
         creds = cast(Credentials, Credentials.from_authorized_user_file(str(token_path), _SCOPES))
+        if creds.valid:
+            return creds
+        if creds.expired and creds.refresh_token:
+            try:
+                creds.refresh(Request())
+                token_path.write_text(creds.to_json())
+                token_path.chmod(0o600)
+                return creds
+            except RefreshError:
+                token_path.unlink()
 
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(client_secret_path, _SCOPES)
-            creds = cast(Credentials, flow.run_local_server(port=0))
-
-        token_path.parent.mkdir(parents=True, exist_ok=True)
-        token_path.write_text(creds.to_json())
-        token_path.chmod(0o600)
-
+    flow = InstalledAppFlow.from_client_secrets_file(client_secret_path, _SCOPES)
+    creds = cast(Credentials, flow.run_local_server(port=0))
+    token_path.parent.mkdir(parents=True, exist_ok=True)
+    token_path.write_text(creds.to_json())
+    token_path.chmod(0o600)
     return creds
 
 
