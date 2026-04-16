@@ -61,6 +61,7 @@ class DriveStorage:
         creds = _get_credentials(client_secret_path, token_path)
         self._service = build("drive", "v3", credentials=creds)
         self._root_folder_id = root_folder_id
+        self._folder_cache: dict[tuple[str, str], str] = {}
 
     @classmethod
     def from_env(cls) -> "DriveStorage":
@@ -93,6 +94,10 @@ class DriveStorage:
         Returns:
             The folder ID.
         """
+        key = (parent_id, name)
+        if key in self._folder_cache:
+            return self._folder_cache[key]
+
         escaped_name = name.replace("'", "\\'")  # Drive query uses single-quoted strings; unescaped quotes break the query syntax
         query = (
             f"name='{escaped_name}' and mimeType='application/vnd.google-apps.folder' "
@@ -101,7 +106,8 @@ class DriveStorage:
         results = self._service.files().list(q=query, fields="files(id)").execute()
         files = results.get("files", [])
         if files:
-            return files[0]["id"]
+            self._folder_cache[key] = files[0]["id"]
+            return self._folder_cache[key]
 
         metadata = {
             "name": name,
@@ -109,7 +115,8 @@ class DriveStorage:
             "parents": [parent_id],
         }
         folder = self._service.files().create(body=metadata, fields="id").execute()
-        return folder["id"]
+        self._folder_cache[key] = folder["id"]
+        return self._folder_cache[key]
 
     def upload_file(self, local_path: Path, drive_path: str) -> None:
         """Upload a local file to Drive, creating intermediate folders as needed.
