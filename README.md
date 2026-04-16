@@ -2,7 +2,12 @@
 
 ## Setup
 
-1. Clone the repo and create a virtual environment:
+1. Install directly from GitHub:
+   ```bash
+   pip install git+https://github.com/redixhumayun/fls-semantic-search.git
+   ```
+
+   Or clone the repo and install locally:
    ```bash
    uv venv && uv pip install -e .
    ```
