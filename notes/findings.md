@@ -52,8 +52,6 @@
 
 ## Illumination Data Format
 
-## Illumination Data Format
-
 **Filename structure:** `lb{N}_{shape}_{date}_{time}.json`
 - `lb{N}` — lightbulb ID, i.e. the FLS index (e.g. lb3, lb4, lb5)
 - `{shape}` — illumination shape being rendered (e.g. happy_emoji)
