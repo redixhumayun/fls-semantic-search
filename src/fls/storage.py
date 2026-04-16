@@ -1,6 +1,7 @@
 import mimetypes
 import os
 from pathlib import Path
+from typing import cast
 
 from dotenv import load_dotenv
 from google.oauth2.credentials import Credentials
@@ -31,14 +32,14 @@ def _get_credentials(client_secret_path: str, token_path: Path) -> Credentials:
     creds = None
 
     if token_path.exists():
-        creds = Credentials.from_authorized_user_file(str(token_path), _SCOPES)
+        creds = cast(Credentials, Credentials.from_authorized_user_file(str(token_path), _SCOPES))
 
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(client_secret_path, _SCOPES)
-            creds = flow.run_local_server(port=0)
+            creds = cast(Credentials, flow.run_local_server(port=0))
 
         token_path.parent.mkdir(parents=True, exist_ok=True)
         token_path.write_text(creds.to_json())
