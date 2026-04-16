@@ -91,8 +91,9 @@ class DriveStorage:
         Returns:
             The folder ID.
         """
+        escaped_name = name.replace("'", "\\'")  # Drive query uses single-quoted strings; unescaped quotes break the query syntax
         query = (
-            f"name='{name}' and mimeType='application/vnd.google-apps.folder' "
+            f"name='{escaped_name}' and mimeType='application/vnd.google-apps.folder' "
             f"and '{parent_id}' in parents and trashed=false"
         )
         results = self._service.files().list(q=query, fields="files(id)").execute()
