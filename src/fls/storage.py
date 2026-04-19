@@ -33,17 +33,22 @@ def _get_credentials(client_secret_path: str, token_path: Path) -> Credentials:
         Valid Google OAuth2 credentials.
     """
     if token_path.exists():
-        creds = cast(Credentials, Credentials.from_authorized_user_file(str(token_path), _SCOPES))
-        if creds.valid:
-            return creds
-        if creds.expired and creds.refresh_token:
-            try:
-                creds.refresh(Request())
-                token_path.write_text(creds.to_json())
-                token_path.chmod(0o600)
+        try:
+            creds = cast(Credentials, Credentials.from_authorized_user_file(str(token_path), _SCOPES))
+        except ValueError:
+            # token file is corrupted (invalid JSON); delete and fall through to browser flow
+            token_path.unlink(missing_ok=True)
+        else:
+            if creds.valid:
                 return creds
-            except RefreshError:
-                token_path.unlink()
+            if creds.expired and creds.refresh_token:
+                try:
+                    creds.refresh(Request())
+                    token_path.write_text(creds.to_json())
+                    token_path.chmod(0o600)
+                    return creds
+                except RefreshError:
+                    token_path.unlink(missing_ok=True)
 
     flow = InstalledAppFlow.from_client_secrets_file(client_secret_path, _SCOPES)
     creds = cast(Credentials, flow.run_local_server(port=0))
@@ -57,7 +62,8 @@ class DriveStorage:
     """Google Drive storage client authenticated via OAuth2."""
 
     def __init__(self, client_secret_path: str, root_folder_id: str, token_path: Path = _DEFAULT_TOKEN_PATH):
-        """
+        """Initialise the Drive storage client and authenticate via OAuth2.
+
         Args:
             client_secret_path: Path to the OAuth client secret JSON file.
             root_folder_id: Drive folder ID to upload experiments into.
