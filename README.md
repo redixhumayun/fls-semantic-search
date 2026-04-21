@@ -4,13 +4,10 @@
 
 1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if you don't have it.
 
-2. Install directly from GitHub:
+2. Clone the repo and install:
    ```bash
-   pip install git+https://github.com/redixhumayun/fls-semantic-search.git
-   ```
-
-   Or clone the repo and install locally:
-   ```bash
+   git clone https://github.com/redixhumayun/fls-semantic-search.git
+   cd fls-semantic-search
    uv venv && uv pip install -e .
    ```
 
