@@ -51,13 +51,21 @@ def cli() -> None:
     parser.add_argument("--experiment", required=True, help="Path to the experiment directory.")
     parser.add_argument("--type", dest="experiment_type", required=True, choices=["interaction", "illumination"], help="Experiment type.")
     parser.add_argument("--notes", default="", help="Optional researcher notes.")
+    parser.add_argument("--datetime", help="Optional datetime string in Y-m-d_H-M-S format. If not provided, current time is used.")
     args = parser.parse_args()
 
     exp_path = Path(args.experiment)
     if not exp_path.is_dir():
         sys.exit(f"Error: {exp_path} is not a directory.")
 
-    timestamp = datetime.now(timezone.utc)
+    if args.datetime:
+        try:
+            timestamp = datetime.strptime(args.datetime, "%Y-%m-%d_%H-%M-%S").replace(tzinfo=timezone.utc)
+        except ValueError:
+            sys.exit(f"Error: --datetime '{args.datetime}' is not in the required format Y-m-d_H-M-S")
+    else:
+        timestamp = datetime.now(timezone.utc)
+        
     prefix = _drive_prefix(timestamp, args.experiment_type)
 
     try:
