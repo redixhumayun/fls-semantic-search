@@ -31,13 +31,15 @@
 ## Usage
 
 ```bash
-fls-upload --experiment <path> --type <interaction|illumination> [--notes "optional notes"]
+fls-upload --experiment <path> --type <interaction|illumination> [--notes "optional notes"] [--datetime YYYY-MM-DD_HH-MM-SS]
 ```
 
 **Example:**
 ```bash
 fls-upload --experiment ./my-experiment --type illumination --notes "rose shape, 25 FLSs"
 ```
+
+Use `--datetime` when you want the upload to use a specific UTC timestamp instead of the current time, for example when preserving the experiment's original run time. That timestamp is used for both the Drive folder path and the generated `metadata.json`, and it must be in `YYYY-MM-DD_HH-MM-SS` format.
 
 ## Storage Structure
 
@@ -51,7 +53,7 @@ fls-experiments/YYYY-MM-DD/HH-MM-SS_type/
 └── video.mp4
 ```
 
-The timestamp is UTC, taken at the moment `fls-upload` is run.
+The timestamp is UTC. By default it is taken at the moment `fls-upload` is run, or you can override it with `--datetime`.
 
 ## Contributing
 
