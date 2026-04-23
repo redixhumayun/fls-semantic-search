@@ -65,7 +65,7 @@ def cli() -> None:
             sys.exit(f"Error: --datetime '{args.datetime}' is not in the required format Y-m-d_H-M-S")
     else:
         timestamp = datetime.now(timezone.utc)
-        
+
     prefix = _drive_prefix(timestamp, args.experiment_type)
 
     try:
@@ -77,7 +77,7 @@ def cli() -> None:
 
     try:
         metadata = _generate_metadata(exp_path, args.experiment_type, timestamp, args.notes)
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=True) as tmp:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json") as tmp:
             json.dump(metadata, tmp, indent=2)
             tmp.flush()
             storage.upload_file(Path(tmp.name), f"{prefix}/metadata.json")
