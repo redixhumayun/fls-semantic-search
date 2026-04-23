@@ -198,9 +198,9 @@ For illumination experiments, there may be multiple telemetry log files correspo
 | Client CLI tool | Python |
 | Server | FastAPI |
 | Embedding model | CLIP (handles both images + text in same vector space) |
-| Storage | Cloudflare R2 (S3-compatible) |
-| Embeddings | Generated on server from representative snapshots and metadata |
-| Frontend | Streamlit |
+| Storage | Google Drive |
+| Embeddings | Generated via separate `fls-embed` script, run manually by researchers after a session |
+| Frontend | React |
 | LLM | DSPy with local default model (for example Qwen) and optional BYOK OpenAI-compatible API |
 
 ---
