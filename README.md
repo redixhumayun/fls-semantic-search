@@ -18,8 +18,13 @@
 
    | Variable | Description |
    |---|---|
-   | `GOOGLE_CLIENT_SECRET` | Path to your OAuth client secret JSON file |
+   | `GOOGLE_CLIENT_SECRET` | Path to the `client_secret.json` file provided by the lab admin |
    | `GDRIVE_FOLDER_ID` | ID of the shared Google Drive folder for experiment data |
+
+   You will receive `client_secret.json` and the folder ID from the lab admin. Save the file anywhere on your machine and set `GOOGLE_CLIENT_SECRET` to its full path, e.g.:
+   ```
+   GOOGLE_CLIENT_SECRET=/Users/yourname/client_secret.json
+   ```
 
 4. On first run, a browser window will open to authenticate with the lab Google account. The token is saved to `~/.config/fls/token.json` and reused for subsequent runs.
 
