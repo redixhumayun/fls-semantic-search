@@ -67,7 +67,6 @@ One file per FLS. Multiple files from the same experiment share the same `{shape
 **`frames` entries:**
 - `frame_id` — sequential frame number
 - `tvec` — `[x, y, z]` 3D position of the FLS in space
-- `dist_sq` — squared distance from target position (localization accuracy)
 - `time` — Unix timestamp
 
 **`cf` entries:**

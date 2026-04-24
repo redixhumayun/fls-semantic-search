@@ -8,9 +8,9 @@ Figma design: https://www.figma.com/design/HQvMkRskCm7n6ypPSRpoLM
 
 **Primary users:** Researchers, NSF sponsors, global researchers, high school students. Interface must be intuitive for non-technical audiences.
 
-**Write path:** Skip embedding generation on upload for now. Client just dumps raw experiment data into R2 object storage. Embeddings can be generated separately.
+**Write path:** Skip embedding generation on upload for now. Client just dumps raw experiment data into Google Drive. Embeddings can be generated separately.
 
-**Storage:** Structured metadata paths in R2 (directory structure as defined below remains correct).
+**Storage:** Structured metadata paths in Google Drive (directory structure as defined below remains correct).
 
 **Client:** Single self-contained Python module — not a multi-package library.
 
@@ -35,7 +35,7 @@ Build a first version of a semantic search layer over FLS experiment data. The i
                     │
                     ▼
             ┌───────────────────┐
-            │  Cloudflare R2    │
+            │   Google Drive    │
             │  (persistence)    │
             └───────────────────┘
                     │
@@ -67,7 +67,7 @@ Build a first version of a semantic search layer over FLS experiment data. The i
 
 ### Server
 - Runs on the researcher's laptop.
-- Receives uploaded experiments, persists raw data to R2, triggers embedding generation, and serves the frontend/query interface.
+- Receives uploaded experiments, persists raw data to Google Drive, triggers embedding generation, and serves the frontend/query interface.
 
 ### Upload Format
 - Client uploads one experiment as a zipped directory containing generated `metadata.json`, one or more telemetry log files, and video or extracted frames when available.
@@ -76,7 +76,7 @@ Build a first version of a semantic search layer over FLS experiment data. The i
 
 ### Embedding Pipeline
 - Runs on the server after upload.
-- Reads raw data from R2, derives experiment metadata, selects representative snapshots, and generates embeddings.
+- Reads raw data from Google Drive, derives experiment metadata, selects representative snapshots, and generates embeddings.
 - V1 scope: use take-off, landing, and 3 randomly selected in-between images when video is present.
 - Support the case where video is absent.
 
@@ -91,7 +91,7 @@ Build a first version of a semantic search layer over FLS experiment data. The i
 
 1. Experiment runs → orchestrator stores telemetry logs and, when available, video
 2. Researcher runs `fls-upload` → data sent to server
-3. Server writes raw data to R2
+3. Server writes raw data to Google Drive
 4. Server derives metadata, selects representative snapshots, and generates embeddings
 5. Researcher queries via frontend → LLM returns results
 
@@ -108,7 +108,7 @@ Build a first version of a semantic search layer over FLS experiment data. The i
 
 ---
 
-## Storage Structure (R2)
+## Storage Structure (Google Drive)
 
 ```
 fls-experiments/
@@ -129,17 +129,17 @@ fls-experiments/
         └── embeddings.json
 ```
 
-**Storage:** Cloudflare R2 — 10 GB-month/month free, unlimited downloads, S3-compatible API. No egress fees.
+**Storage:** Google Drive shared folder configured via `GDRIVE_FOLDER_ID`.
 
 *Storage estimate per experiment:*
 - *Raw data: approximately 50MB based on the professor's estimate*
 - *V1 embeddings are smaller than the original full-stream design because only metadata and representative snapshots are embedded*
 - *10GB free tier is sufficient for the initial prototype scale*
 
-*Alternatives considered:*
-- *GitHub LFS: 1GB storage + 1GB/month bandwidth — insufficient for research workloads*
-- *Google Drive - API painful to deal with*
-- *S3: cost concern per professor*
+*Why Google Drive for now:*
+- *Already used by the upload CLI and lab workflow*
+- *Shared folder access matches the current research setup*
+- *Keeps storage simple while the embedding pipeline is still evolving*
 
 ---
 
@@ -153,7 +153,7 @@ fls-experiments/
 
 ### `embeddings.json`
 
-Per-experiment embedding output stored alongside raw data in R2.
+Per-experiment embedding output stored alongside raw data in Google Drive.
 
 Example structure:
 
