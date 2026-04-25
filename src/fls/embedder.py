@@ -1,3 +1,5 @@
+from typing import cast
+
 import torch
 from PIL import Image
 from transformers import CLIPModel, CLIPProcessor
@@ -14,8 +16,8 @@ class Embedder:
 
     def __init__(self) -> None:
         print(f"Loading {CLIP_MODEL_NAME} (first run downloads ~350 MB)...")
-        self._model: CLIPModel = CLIPModel.from_pretrained(CLIP_MODEL_NAME)
-        self._processor: CLIPProcessor = CLIPProcessor.from_pretrained(CLIP_MODEL_NAME)
+        self._model = cast(CLIPModel, CLIPModel.from_pretrained(CLIP_MODEL_NAME))
+        self._processor = cast(CLIPProcessor, CLIPProcessor.from_pretrained(CLIP_MODEL_NAME))
         self._model.eval()
 
     def embed_text(self, text: str) -> list[float]:
