@@ -6,9 +6,6 @@ import yaml
 
 from .models import IlluminationData, InteractionData
 
-_ILLUMINATION_RE = re.compile(r"^lb\d+_(.+)_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\.json$")
-
-
 def parse_illumination(
     files: dict[str, str],
     download_fn: Callable[[str], bytes],
@@ -33,9 +30,13 @@ def parse_illumination(
     if not telemetry:
         raise ValueError("No illumination telemetry .json files found")
 
+    # Matches lb{N}_{shape_name}_{YYYY-MM-DD}_{HH-MM-SS}.json
+    # e.g. lb1_nsf_anchor_2026-04-13_16-43-48.json — capture group 1 is shape_name.
+    illumination_re = re.compile(r"^lb\d+_(.+)_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\.json$")
+
     shape_names: set[str] = set()
     for name in telemetry:
-        m = _ILLUMINATION_RE.match(name)
+        m = illumination_re.match(name)
         if not m:
             raise ValueError(f"Telemetry filename does not match expected pattern: {name!r}")
         shape_names.add(m.group(1))
