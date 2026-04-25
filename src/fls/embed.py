@@ -29,6 +29,16 @@ _SNAPSHOT_LABEL = {
 
 
 def _log_error(log_path: Path, experiment_path: str, error_type: str, message: str) -> None:
+    """Append a JSON-lines error entry to the local error log.
+
+    Creates the log file and any parent directories if they do not exist.
+
+    Args:
+        log_path: Path to the error log file.
+        experiment_path: Drive path of the experiment that failed.
+        error_type: Short error class name (e.g. 'ValueError', 'CrawlError').
+        message: Human-readable error description.
+    """
     log_path.parent.mkdir(parents=True, exist_ok=True)
     entry = json.dumps({
         "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
@@ -41,6 +51,15 @@ def _log_error(log_path: Path, experiment_path: str, error_type: str, message: s
 
 
 def _offset_to_iso(base_timestamp: str, offset_s: float) -> str:
+    """Return an ISO 8601 timestamp offset from a base timestamp by offset_s seconds.
+
+    Args:
+        base_timestamp: ISO 8601 string (e.g. experiment start time).
+        offset_s: Number of seconds to add.
+
+    Returns:
+        ISO 8601 string with UTC suffix.
+    """
     dt = datetime.fromisoformat(base_timestamp)
     return (dt + timedelta(seconds=offset_s)).isoformat().replace("+00:00", "Z")
 

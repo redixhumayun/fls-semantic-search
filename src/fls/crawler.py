@@ -20,10 +20,28 @@ class ExperimentListing:
 
 
 def _is_fresh(embeddings_data: dict) -> bool:
+    """Return True if all pipeline version fields in embeddings_data match PIPELINE_VERSIONS.
+
+    Args:
+        embeddings_data: Parsed contents of an existing embeddings.json.
+
+    Returns:
+        True if the embeddings are current, False if regeneration is needed.
+    """
     return all(embeddings_data.get(k) == v for k, v in PIPELINE_VERSIONS.items())
 
 
 def _find_child_folder(storage: DriveStorage, parent_id: str, name: str) -> str | None:
+    """Return the Drive folder ID of a direct child folder by name, or None if not found.
+
+    Args:
+        storage: Authenticated DriveStorage instance.
+        parent_id: Drive ID of the parent folder to search within.
+        name: Exact name of the child folder to find.
+
+    Returns:
+        The child folder ID, or None if no matching folder exists.
+    """
     for item in storage.list_folder(parent_id):
         if item["name"] == name and item["mimeType"] == "application/vnd.google-apps.folder":
             return item["id"]
