@@ -104,6 +104,7 @@ def _process_experiment(
         print(f"  has_video: {has_video}")
         return
 
+    assert embedder is not None
     text_embedding = embedder.embed_text(summary)
     items: list[EmbeddingItem] = [
         EmbeddingItem(

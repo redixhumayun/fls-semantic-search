@@ -69,7 +69,7 @@ def extract_snapshots(video_bytes: bytes) -> list[Snapshot]:
 
             actual_offset = (
                 float(frame.pts * video_stream.time_base)
-                if frame.pts is not None
+                if frame.pts is not None and video_stream.time_base is not None
                 else offset_s
             )
             snapshots.append(Snapshot(
