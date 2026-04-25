@@ -8,7 +8,8 @@ from pathlib import Path
 
 from googleapiclient.errors import HttpError
 
-from .crawler import ExperimentListing, PIPELINE_VERSIONS, find_experiments
+from .crawler import PIPELINE_VERSIONS, find_experiments
+from .models import ExperimentListing
 from .embedder import Embedder
 from .models import EmbeddingItem
 from .parser import parse_illumination, parse_interaction

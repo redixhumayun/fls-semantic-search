@@ -1,6 +1,6 @@
 import json
-from dataclasses import dataclass, field
 
+from .models import ExperimentListing
 from .storage import DriveStorage
 
 PIPELINE_VERSIONS: dict[str, str] = {
@@ -9,14 +9,6 @@ PIPELINE_VERSIONS: dict[str, str] = {
     "summary_version": "1",
     "snapshot_version": "1",
 }
-
-
-@dataclass
-class ExperimentListing:
-    folder_id: str
-    drive_path: str
-    files: dict[str, str] = field(default_factory=dict)
-    metadata: dict = field(default_factory=dict)
 
 
 def _is_fresh(embeddings_data: dict) -> bool:

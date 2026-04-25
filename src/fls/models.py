@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from PIL import Image
 
@@ -37,3 +37,11 @@ class Snapshot:
     path: str
     image: Image.Image
     offset_seconds: float
+
+
+@dataclass
+class ExperimentListing:
+    folder_id: str
+    drive_path: str
+    files: dict[str, str] = field(default_factory=dict)
+    metadata: dict = field(default_factory=dict)
