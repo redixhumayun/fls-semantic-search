@@ -1,3 +1,4 @@
+import io
 import mimetypes
 import os
 from pathlib import Path
@@ -9,7 +10,7 @@ from google.auth.exceptions import RefreshError
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
-from googleapiclient.http import MediaFileUpload
+from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload, MediaIoBaseUpload
 
 load_dotenv()
 
@@ -162,3 +163,84 @@ class DriveStorage:
             status, response = request.next_chunk()
             if status:
                 print(f"  Uploading {filename}... {int(status.progress() * 100)}%", end="\r", flush=True)
+
+    def list_folder(self, folder_id: str) -> list[dict]:
+        """List all non-trashed files and folders directly inside a Drive folder.
+
+        Args:
+            folder_id: Drive folder ID to list.
+
+        Returns:
+            List of file metadata dicts with keys: id, name, mimeType.
+        """
+        items = []
+        page_token = None
+        while True:
+            kwargs: dict = dict(
+                q=f"'{folder_id}' in parents and trashed=false",
+                fields="nextPageToken, files(id, name, mimeType)",
+                pageSize=1000,
+            )
+            if page_token:
+                kwargs["pageToken"] = page_token
+            result = self._service.files().list(**kwargs).execute()
+            items.extend(result.get("files", []))
+            page_token = result.get("nextPageToken")
+            if not page_token:
+                break
+        return items
+
+    def download_file(self, file_id: str) -> bytes:
+        """Download file contents by Drive file ID.
+
+        Args:
+            file_id: Drive file ID.
+
+        Returns:
+            Raw file bytes.
+        """
+        request = self._service.files().get_media(fileId=file_id)
+        buf = io.BytesIO()
+        downloader = MediaIoBaseDownload(buf, request)
+        done = False
+        while not done:
+            _, done = downloader.next_chunk()
+        return buf.getvalue()
+
+    def upload_bytes(self, content: bytes, drive_path: str, mime_type: str = "application/octet-stream") -> None:
+        """Upload bytes to Drive, updating an existing file if one exists at that path.
+
+        Creates intermediate folders as needed. Never deletes — uses files().update()
+        when the filename already exists in the parent folder.
+
+        Args:
+            content: Raw bytes to upload.
+            drive_path: Destination path within the root folder (e.g. 'exp/snapshots/first.jpg').
+            mime_type: MIME type of the content.
+        """
+        parts = Path(drive_path).parts
+        folder_parts, filename = parts[:-1], parts[-1]
+
+        parent_id = self._root_folder_id
+        for part in folder_parts:
+            parent_id = self._get_or_create_folder(part, parent_id=parent_id)
+
+        media = MediaIoBaseUpload(io.BytesIO(content), mimetype=mime_type, resumable=False)
+
+        escaped = filename.replace("'", "\\'")
+        existing = self._service.files().list(
+            q=f"name='{escaped}' and '{parent_id}' in parents and trashed=false",
+            fields="files(id)",
+        ).execute().get("files", [])
+
+        if existing:
+            self._service.files().update(
+                fileId=existing[0]["id"],
+                media_body=media,
+            ).execute()
+        else:
+            self._service.files().create(
+                body={"name": filename, "parents": [parent_id]},
+                media_body=media,
+                fields="id",
+            ).execute()
