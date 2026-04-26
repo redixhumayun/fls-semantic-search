@@ -86,7 +86,13 @@ def parse_interaction(
         raise ValueError("No interaction telemetry .json files found")
 
     yaml_fid = next(iter(yaml_files.values()))
-    config = yaml.safe_load(download_fn(yaml_fid))
+    try:
+        config = yaml.safe_load(download_fn(yaml_fid))
+    except yaml.YAMLError as exc:
+        raise ValueError(f"Invalid YAML config: {exc}") from exc
+
+    if not isinstance(config, dict):
+        raise ValueError("YAML top level must be a mapping")
 
     interaction_name = config.get("name")
     if not interaction_name:
