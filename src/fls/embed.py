@@ -201,7 +201,6 @@ def cli() -> None:
     except RuntimeError as e:
         sys.exit(f"Error: {e}")
 
-    print(f"Scanning {experiments_prefix!r} in Google Drive...")
     to_process, already_fresh, crawl_errors = find_experiments(storage, experiments_prefix, force=args.force)
 
     for drive_path, message in crawl_errors:

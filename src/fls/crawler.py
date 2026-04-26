@@ -1,4 +1,5 @@
 import json
+import sys
 
 from .config import PIPELINE_VERSIONS
 from .models import ExperimentListing
@@ -63,6 +64,7 @@ def find_experiments(
     to_process: list[ExperimentListing] = []
     already_fresh: list[ExperimentListing] = []
     crawl_errors: list[tuple[str, str]] = []
+    checked = 0
 
     for date_folder in storage.list_folder(prefix_id):
         if date_folder["mimeType"] != "application/vnd.google-apps.folder":
@@ -82,6 +84,9 @@ def find_experiments(
 
             if "metadata.json" not in files:
                 continue
+
+            checked += 1
+            print(f"\rScanning... {checked} experiments checked", end="", flush=True)
 
             try:
                 metadata = json.loads(storage.download_file(files["metadata.json"]))
@@ -109,4 +114,5 @@ def find_experiments(
 
             to_process.append(listing)
 
+    print("\r", end="", flush=True)  # clear the scanning line
     return to_process, already_fresh, crawl_errors
