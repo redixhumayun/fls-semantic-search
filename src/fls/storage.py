@@ -12,10 +12,11 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload, MediaIoBaseUpload
 
+from .config import TOKEN_PATH as _DEFAULT_TOKEN_PATH
+
 load_dotenv()
 
 _SCOPES = ["https://www.googleapis.com/auth/drive"]
-_DEFAULT_TOKEN_PATH = Path.home() / ".config" / "fls" / "token.json"
 
 
 def _get_credentials(client_secret_path: str, token_path: Path) -> Credentials:

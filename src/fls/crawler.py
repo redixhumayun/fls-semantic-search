@@ -1,15 +1,8 @@
 import json
 
-from .embedder import CLIP_MODEL_NAME
+from .config import PIPELINE_VERSIONS
 from .models import ExperimentListing
 from .storage import DriveStorage
-
-PIPELINE_VERSIONS: dict[str, str] = {
-    "schema_version": "1",
-    "embedding_model": CLIP_MODEL_NAME,
-    "summary_version": "1",
-    "snapshot_version": "1",
-}
 
 
 def _is_fresh(embeddings_data: dict) -> bool:

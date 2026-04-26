@@ -8,7 +8,8 @@ from pathlib import Path
 
 from googleapiclient.errors import HttpError
 
-from .crawler import PIPELINE_VERSIONS, find_experiments
+from .config import EMBED_ERROR_LOG, EXPERIMENTS_PREFIX_DEFAULT, PIPELINE_VERSIONS
+from .crawler import find_experiments
 from .models import ExperimentListing
 from .embedder import Embedder
 from .models import EmbeddingItem
@@ -17,8 +18,6 @@ from .snapshot import extract_snapshots
 from .storage import DriveStorage
 from .summarize import summarize_illumination, summarize_interaction
 
-_DEFAULT_ERROR_LOG = Path.home() / ".config" / "fls" / "embed_errors.log"
-_DEFAULT_EXPERIMENTS_PREFIX = "fls-experiments"
 
 _SNAPSHOT_LABEL = {
     "snapshot_first":    "first frame",
@@ -189,12 +188,12 @@ def cli() -> None:
     )
     parser.add_argument(
         "--log-path",
-        default=str(_DEFAULT_ERROR_LOG),
+        default=str(EMBED_ERROR_LOG),
         help="Path for the error log file (JSON lines). Default: ~/.config/fls/embed_errors.log",
     )
     args = parser.parse_args()
 
-    experiments_prefix = os.environ.get("GDRIVE_EXPERIMENTS_PREFIX", _DEFAULT_EXPERIMENTS_PREFIX)
+    experiments_prefix = os.environ.get("GDRIVE_EXPERIMENTS_PREFIX", EXPERIMENTS_PREFIX_DEFAULT)
     log_path = Path(args.log_path)
 
     try:

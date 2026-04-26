@@ -5,7 +5,7 @@ from PIL import Image
 from transformers import CLIPModel, CLIPProcessor
 from transformers.modeling_outputs import BaseModelOutputWithPooling
 
-CLIP_MODEL_NAME = "openai/clip-vit-base-patch32"
+from .config import CLIP_MODEL_NAME
 
 
 class Embedder:
