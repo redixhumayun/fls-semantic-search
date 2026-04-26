@@ -229,7 +229,10 @@ class DriveStorage:
 
         escaped = filename.replace("'", "\\'")
         existing = self._service.files().list(
-            q=f"name='{escaped}' and '{parent_id}' in parents and trashed=false",
+            q=(
+                f"name='{escaped}' and '{parent_id}' in parents and trashed=false"
+                " and mimeType != 'application/vnd.google-apps.folder'"
+            ),
             fields="files(id)",
         ).execute().get("files", [])
 
