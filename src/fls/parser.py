@@ -44,8 +44,14 @@ def parse_illumination(
     if len(shape_names) != 1:
         raise ValueError(f"Telemetry files disagree on shape name: {shape_names}")
 
-    first_id = next(iter(telemetry.values()))
-    data = json.loads(download_fn(first_id))
+    first_name, first_id = next(iter(telemetry.items()))
+    raw = download_fn(first_id)
+    if not raw:
+        raise ValueError(f"Telemetry file {first_name!r} is empty")
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Telemetry file {first_name!r} is invalid JSON: {e}") from e
     if "start_time" not in data or "stop_time" not in data:
         raise ValueError("Telemetry file is missing start_time or stop_time")
 
