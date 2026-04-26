@@ -25,7 +25,7 @@ def parse_illumination(
     telemetry = {
         name: fid
         for name, fid in files.items()
-        if name != "metadata.json" and name.endswith(".json")
+        if name not in ("metadata.json", "embeddings.json") and name.endswith(".json")
     }
     if not telemetry:
         raise ValueError("No illumination telemetry .json files found")
@@ -80,7 +80,7 @@ def parse_interaction(
     telemetry = {
         name: fid
         for name, fid in files.items()
-        if name != "metadata.json" and name.endswith(".json")
+        if name not in ("metadata.json", "embeddings.json") and name.endswith(".json")
     }
     if not telemetry:
         raise ValueError("No interaction telemetry .json files found")
