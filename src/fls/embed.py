@@ -191,6 +191,23 @@ def cli() -> None:
         default=str(EMBED_ERROR_LOG),
         help="Path for the error log file (JSON lines). Default: ~/.config/fls/embed_errors.log",
     )
+    parser.add_argument(
+        "--path",
+        default=None,
+        help="Limit to a specific date or experiment path (e.g. fls-experiments/2026-04-23 or fls-experiments/2026-04-23/14-35-14_interaction).",
+    )
+    parser.add_argument(
+        "--from-date",
+        default=None,
+        metavar="YYYY-MM-DD",
+        help="Only process experiments on or after this date.",
+    )
+    parser.add_argument(
+        "--to-date",
+        default=None,
+        metavar="YYYY-MM-DD",
+        help="Only process experiments on or before this date.",
+    )
     args = parser.parse_args()
 
     experiments_prefix = os.environ.get("GDRIVE_EXPERIMENTS_PREFIX", EXPERIMENTS_PREFIX_DEFAULT)
@@ -201,7 +218,14 @@ def cli() -> None:
     except RuntimeError as e:
         sys.exit(f"Error: {e}")
 
-    to_process, already_fresh, crawl_errors = find_experiments(storage, experiments_prefix, force=args.force)
+    to_process, already_fresh, crawl_errors = find_experiments(
+        storage,
+        experiments_prefix,
+        force=args.force,
+        path_filter=args.path,
+        from_date=args.from_date,
+        to_date=args.to_date,
+    )
 
     for drive_path, message in crawl_errors:
         print(f"  Crawl error: {message}", file=sys.stderr)

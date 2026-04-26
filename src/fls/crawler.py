@@ -39,6 +39,9 @@ def find_experiments(
     storage: DriveStorage,
     experiments_prefix: str,
     force: bool = False,
+    path_filter: str | None = None,
+    from_date: str | None = None,
+    to_date: str | None = None,
 ) -> tuple[list[ExperimentListing], list[ExperimentListing], list[tuple[str, str]]]:
     """Crawl Drive and return (to_process, already_fresh, crawl_errors) lists.
 
@@ -48,10 +51,19 @@ def find_experiments(
     embeddings.json cannot be parsed are collected in crawl_errors rather than
     aborting the crawl.
 
+    When path_filter is provided, navigation jumps directly to the specified
+    date or experiment folder instead of walking the full hierarchy.
+    When from_date/to_date are provided, date folders outside the range are
+    skipped without listing their contents.
+
     Args:
         storage: Authenticated DriveStorage instance.
         experiments_prefix: Name of the experiments root folder (e.g. 'fls-experiments').
         force: When True, treat all experiments as needing regeneration.
+        path_filter: Optional Drive path to limit the scan (e.g. 'fls-experiments/2026-04-23'
+            or 'fls-experiments/2026-04-23/14-35-14_interaction').
+        from_date: Optional lower bound date string (YYYY-MM-DD, inclusive).
+        to_date: Optional upper bound date string (YYYY-MM-DD, inclusive).
 
     Returns:
         Tuple of (experiments to embed, experiments already up-to-date, crawl errors).
@@ -61,16 +73,46 @@ def find_experiments(
     if prefix_id is None:
         return [], [], []
 
+    # Parse path_filter into (date_name, exp_name) components if provided
+    filter_date: str | None = None
+    filter_exp: str | None = None
+    if path_filter:
+        parts = path_filter.strip("/").split("/")
+        if len(parts) >= 2:
+            filter_date = parts[1]
+        if len(parts) >= 3:
+            filter_exp = parts[2]
+
     to_process: list[ExperimentListing] = []
     already_fresh: list[ExperimentListing] = []
     crawl_errors: list[tuple[str, str]] = []
     checked = 0
 
-    for date_folder in storage.list_folder(prefix_id):
+    # Build the list of date folders to iterate — navigate directly if filter_date is set
+    if filter_date:
+        date_folder_id = _find_child_folder(storage, prefix_id, filter_date)
+        date_folders = [{"id": date_folder_id, "name": filter_date, "mimeType": "application/vnd.google-apps.folder"}] if date_folder_id else []
+    else:
+        date_folders = storage.list_folder(prefix_id)
+
+    for date_folder in date_folders:
         if date_folder["mimeType"] != "application/vnd.google-apps.folder":
             continue
 
-        for exp_folder in storage.list_folder(date_folder["id"]):
+        date_name = date_folder["name"]
+        if from_date and date_name < from_date:
+            continue
+        if to_date and date_name > to_date:
+            continue
+
+        # Build the list of experiment folders — navigate directly if filter_exp is set
+        if filter_exp:
+            exp_folder_id = _find_child_folder(storage, date_folder["id"], filter_exp)
+            exp_folders = [{"id": exp_folder_id, "name": filter_exp, "mimeType": "application/vnd.google-apps.folder"}] if exp_folder_id else []
+        else:
+            exp_folders = storage.list_folder(date_folder["id"])
+
+        for exp_folder in exp_folders:
             if exp_folder["mimeType"] != "application/vnd.google-apps.folder":
                 continue
 
