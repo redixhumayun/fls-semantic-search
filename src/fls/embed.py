@@ -29,7 +29,7 @@ _SNAPSHOT_LABEL = {
 
 
 def _log_error(log_path: Path, experiment_path: str, error_type: str, message: str) -> None:
-    """Append a JSON-lines error entry to the local error log.
+    """Write a JSON-lines error entry to the local error log.
 
     Creates the log file and any parent directories if they do not exist.
 
@@ -39,7 +39,6 @@ def _log_error(log_path: Path, experiment_path: str, error_type: str, message: s
         error_type: Short error class name (e.g. 'ValueError', 'CrawlError').
         message: Human-readable error description.
     """
-    log_path.parent.mkdir(parents=True, exist_ok=True)
     entry = json.dumps({
         "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "experiment_path": experiment_path,
@@ -212,6 +211,8 @@ def cli() -> None:
 
     experiments_prefix = os.environ.get("GDRIVE_EXPERIMENTS_PREFIX", EXPERIMENTS_PREFIX_DEFAULT)
     log_path = Path(args.log_path)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    log_path.write_text("")
 
     try:
         storage = DriveStorage.from_env()
