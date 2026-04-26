@@ -21,7 +21,7 @@ embed = [
     "av>=12.0",
     "Pillow>=10.0",
     "torch>=2.0",
-    "transformers>=4.35",
+    "transformers>=5.0",
     "pyyaml>=6.0",
 ]
 
