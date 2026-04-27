@@ -13,8 +13,21 @@ dependencies = [
     "python-dotenv>=1.0",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pyright>=1.1",
+]
+embed = [
+    "av>=12.0",
+    "Pillow>=10.0",
+    "torch>=2.0",
+    "transformers>=5.0",
+    "pyyaml>=6.0",
+]
+
 [project.scripts]
 fls-upload = "fls.upload:cli"
+fls-embed = "fls.embed:cli"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/fls"]

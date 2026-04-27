@@ -21,6 +21,17 @@ On first run, a browser window opens for OAuth2 authentication. The token is cac
 .venv/bin/fls-upload --experiment <path> --type <interaction|illumination> [--notes "..."]
 ```
 
+## Type Checking
+
+Run pyright before committing to ensure no type errors are left behind:
+
+```bash
+uv pip install -e ".[dev]"   # first time only
+.venv/bin/pyright src/fls/
+```
+
+Expected output: `0 errors, 0 warnings, 0 informations`. Do not commit if there are errors.
+
 ## Code Conventions
 
 - **Docstrings**: [Google style](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings)
