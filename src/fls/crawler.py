@@ -1,5 +1,6 @@
 import json
-import sys
+
+from googleapiclient.errors import HttpError
 
 from .config import PIPELINE_VERSIONS
 from .models import ExperimentListing
@@ -132,7 +133,7 @@ def find_experiments(
 
             try:
                 metadata = json.loads(storage.download_file(files["metadata.json"]))
-            except (json.JSONDecodeError, Exception) as e:
+            except (json.JSONDecodeError, HttpError) as e:
                 crawl_errors.append((drive_path, f"could not parse metadata.json: {e}"))
                 continue
 
@@ -146,7 +147,7 @@ def find_experiments(
             if not force and "embeddings.json" in files:
                 try:
                     embeddings_data = json.loads(storage.download_file(files["embeddings.json"]))
-                except (json.JSONDecodeError, Exception) as e:
+                except (json.JSONDecodeError, HttpError) as e:
                     crawl_errors.append((drive_path, f"could not parse embeddings.json: {e}"))
                     to_process.append(listing)
                     continue
