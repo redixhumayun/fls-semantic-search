@@ -86,21 +86,43 @@ export default function CalendarPanel({ experiments }: CalendarPanelProps) {
           const illumination = exps.filter(e => e.metadata.type === 'illumination').length
           const interaction = exps.filter(e => e.metadata.type === 'interaction').length
 
+          const tooltipParts = []
+          if (illumination > 0) tooltipParts.push(`${illumination} illumination`)
+          if (interaction > 0) tooltipParts.push(`${interaction} interaction`)
+          const tooltip = `${exps.length} experiment${exps.length !== 1 ? 's' : ''}: ${tooltipParts.join(', ')}`
+
+          const col = idx % 7
+          const tooltipPos = col === 0
+            ? 'left-0'
+            : col === 6
+            ? 'right-0'
+            : 'left-1/2 -translate-x-1/2'
+          const caretPos = col === 0
+            ? 'left-3'
+            : col === 6
+            ? 'right-3'
+            : 'left-1/2 -translate-x-1/2'
+
           return (
             <div
               key={idx}
               onClick={() => hasExps && handleDayClick(day)}
-              className={`flex flex-col items-center py-2 rounded-lg ${
+              className={`relative group flex flex-col items-center py-2 rounded-lg ${
                 hasExps ? 'cursor-pointer hover:bg-slate-50' : ''
               } ${isToday ? 'ring-2 ring-blue-500 ring-inset' : ''}`}
             >
+              {hasExps && (
+                <div className={`absolute bottom-full ${tooltipPos} mb-1.5 px-2 py-1 bg-slate-800 text-white text-[10px] rounded whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-10`}>
+                  {tooltip}
+                  <div className={`absolute top-full ${caretPos} border-4 border-transparent border-t-slate-800`} />
+                </div>
+              )}
               <span className={`text-sm ${isToday ? 'text-blue-600 font-semibold' : 'text-slate-700'}`}>
                 {day}
               </span>
-              <div className="flex gap-0.5 mt-1 h-2">
+              <div className="flex items-center gap-0.5 mt-1 h-4">
                 {illumination > 0 && <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />}
                 {interaction > 0 && <span className="w-1.5 h-1.5 rounded-full bg-violet-500" />}
-                {exps.length > 2 && <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />}
               </div>
             </div>
           )
