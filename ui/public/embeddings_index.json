@@ -1,0 +1,465 @@
+{
+  "generated_at": "2026-04-30T12:00:00Z",
+  "experiments": [
+    {
+      "experiment_path": "fls-experiments/2026-04-13/16-50-34_illumination",
+      "metadata": {
+        "experiment_name": "16-50-34_illumination",
+        "date": "2026-04-13",
+        "timestamp": "2026-04-13T16:50:34Z",
+        "type": "illumination",
+        "notes": "NSF anchor shape, stable formation. Check battery handoff logs."
+      },
+      "items": [
+        {
+          "id": "experiment_text",
+          "modality": "text",
+          "timestamp": "2026-04-13T16:50:34Z",
+          "source_path": "metadata.json",
+          "text_summary": "illumination experiment, shape nsf_anchor, 7 FLSs, duration 120.0 seconds, video present",
+          "embedding": []
+        }
+      ]
+    },
+    {
+      "experiment_path": "fls-experiments/2026-04-21/09-56-25_interaction",
+      "metadata": {
+        "experiment_name": "09-56-25_interaction",
+        "date": "2026-04-21",
+        "timestamp": "2026-04-21T09:56:25Z",
+        "type": "interaction",
+        "notes": ""
+      },
+      "items": [
+        {
+          "id": "experiment_text",
+          "modality": "text",
+          "timestamp": "2026-04-21T09:56:25Z",
+          "source_path": "metadata.json",
+          "text_summary": "interaction experiment, name emoji_interaction_off, 3 FLSs, action off, configured duration 30 seconds, grace time 2 seconds, video present",
+          "embedding": []
+        }
+      ]
+    },
+    {
+      "experiment_path": "fls-experiments/2026-04-09/10-30-00_interaction",
+      "metadata": {
+        "experiment_name": "10-30-00_interaction",
+        "date": "2026-04-09",
+        "timestamp": "2026-04-09T10:30:00Z",
+        "type": "interaction",
+        "notes": "Touch interaction test, high user engagement."
+      },
+      "items": [
+        {
+          "id": "experiment_text",
+          "modality": "text",
+          "timestamp": "2026-04-09T10:30:00Z",
+          "source_path": "metadata.json",
+          "text_summary": "interaction experiment, name touch_interaction, 12 FLSs, action touch, configured duration 60 seconds, grace time 2 seconds, video present",
+          "embedding": []
+        }
+      ]
+    },
+    {
+      "experiment_path": "fls-experiments/2026-04-09/14-15-00_illumination",
+      "metadata": {
+        "experiment_name": "14-15-00_illumination",
+        "date": "2026-04-09",
+        "timestamp": "2026-04-09T14:15:00Z",
+        "type": "illumination",
+        "notes": "Good lighting conditions."
+      },
+      "items": [
+        {
+          "id": "experiment_text",
+          "modality": "text",
+          "timestamp": "2026-04-09T14:15:00Z",
+          "source_path": "metadata.json",
+          "text_summary": "illumination experiment, shape rose, 25 FLSs, duration 90.0 seconds, video present",
+          "embedding": []
+        },
+        {
+          "id": "snapshot_first",
+          "modality": "image",
+          "timestamp": "2026-04-09T14:15:00Z",
+          "source_path": "snapshots/first.jpg",
+          "text_summary": "illumination experiment, shape rose, 25 FLSs, duration 90.0 seconds, video present, representative first frame snapshot",
+          "embedding": []
+        },
+        {
+          "id": "snapshot_middle_1",
+          "modality": "image",
+          "timestamp": "2026-04-09T14:15:22Z",
+          "source_path": "snapshots/middle_1.jpg",
+          "text_summary": "illumination experiment, shape rose, 25 FLSs, duration 90.0 seconds, video present, representative middle frame 1 snapshot",
+          "embedding": []
+        },
+        {
+          "id": "snapshot_middle_2",
+          "modality": "image",
+          "timestamp": "2026-04-09T14:15:44Z",
+          "source_path": "snapshots/middle_2.jpg",
+          "text_summary": "illumination experiment, shape rose, 25 FLSs, duration 90.0 seconds, video present, representative middle frame 2 snapshot",
+          "embedding": []
+        },
+        {
+          "id": "snapshot_middle_3",
+          "modality": "image",
+          "timestamp": "2026-04-09T14:16:08Z",
+          "source_path": "snapshots/middle_3.jpg",
+          "text_summary": "illumination experiment, shape rose, 25 FLSs, duration 90.0 seconds, video present, representative middle frame 3 snapshot",
+          "embedding": []
+        },
+        {
+          "id": "snapshot_last",
+          "modality": "image",
+          "timestamp": "2026-04-09T14:16:30Z",
+          "source_path": "snapshots/last.jpg",
+          "text_summary": "illumination experiment, shape rose, 25 FLSs, duration 90.0 seconds, video present, representative last frame snapshot",
+          "embedding": []
+        }
+      ]
+    },
+    {
+      "experiment_path": "fls-experiments/2026-04-08/11-00-00_illumination",
+      "metadata": {
+        "experiment_name": "11-00-00_illumination",
+        "date": "2026-04-08",
+        "timestamp": "2026-04-08T11:00:00Z",
+        "type": "illumination",
+        "notes": ""
+      },
+      "items": [
+        {
+          "id": "experiment_text",
+          "modality": "text",
+          "timestamp": "2026-04-08T11:00:00Z",
+          "source_path": "metadata.json",
+          "text_summary": "illumination experiment, shape sphere, 40 FLSs, duration 180.0 seconds, video present",
+          "embedding": []
+        }
+      ]
+    },
+    {
+      "experiment_path": "fls-experiments/2026-04-08/15-45-00_interaction",
+      "metadata": {
+        "experiment_name": "15-45-00_interaction",
+        "date": "2026-04-08",
+        "timestamp": "2026-04-08T15:45:00Z",
+        "type": "interaction",
+        "notes": "Swipe gesture experiment."
+      },
+      "items": [
+        {
+          "id": "experiment_text",
+          "modality": "text",
+          "timestamp": "2026-04-08T15:45:00Z",
+          "source_path": "metadata.json",
+          "text_summary": "interaction experiment, name swipe_gesture, 8 FLSs, action swipe, configured duration 45 seconds, grace time 1.5 seconds, video present",
+          "embedding": []
+        }
+      ]
+    },
+    {
+      "experiment_path": "fls-experiments/2026-04-05/09-00-00_illumination",
+      "metadata": {
+        "experiment_name": "09-00-00_illumination",
+        "date": "2026-04-05",
+        "timestamp": "2026-04-05T09:00:00Z",
+        "type": "illumination",
+        "notes": ""
+      },
+      "items": [
+        {
+          "id": "experiment_text",
+          "modality": "text",
+          "timestamp": "2026-04-05T09:00:00Z",
+          "source_path": "metadata.json",
+          "text_summary": "illumination experiment, shape cube, 64 FLSs, duration 180.0 seconds, video present",
+          "embedding": []
+        }
+      ]
+    },
+    {
+      "experiment_path": "fls-experiments/2026-04-02/13-30-00_interaction",
+      "metadata": {
+        "experiment_name": "13-30-00_interaction",
+        "date": "2026-04-02",
+        "timestamp": "2026-04-02T13:30:00Z",
+        "type": "interaction",
+        "notes": ""
+      },
+      "items": [
+        {
+          "id": "experiment_text",
+          "modality": "text",
+          "timestamp": "2026-04-02T13:30:00Z",
+          "source_path": "metadata.json",
+          "text_summary": "interaction experiment, name push_force, 15 FLSs, action push, configured duration 75 seconds, grace time 2 seconds, video present",
+          "embedding": []
+        }
+      ]
+    },
+    {
+      "experiment_path": "fls-experiments/2026-04-15/10-00-00_illumination",
+      "metadata": {
+        "experiment_name": "10-00-00_illumination",
+        "date": "2026-04-15",
+        "timestamp": "2026-04-15T10:00:00Z",
+        "type": "illumination",
+        "notes": ""
+      },
+      "items": [
+        {
+          "id": "experiment_text",
+          "modality": "text",
+          "timestamp": "2026-04-15T10:00:00Z",
+          "source_path": "metadata.json",
+          "text_summary": "illumination experiment, shape rose, 20 FLSs, duration 85.0 seconds, video present",
+          "embedding": []
+        }
+      ]
+    },
+    {
+      "experiment_path": "fls-experiments/2026-04-15/14-30-00_interaction",
+      "metadata": {
+        "experiment_name": "14-30-00_interaction",
+        "date": "2026-04-15",
+        "timestamp": "2026-04-15T14:30:00Z",
+        "type": "interaction",
+        "notes": ""
+      },
+      "items": [
+        {
+          "id": "experiment_text",
+          "modality": "text",
+          "timestamp": "2026-04-15T14:30:00Z",
+          "source_path": "metadata.json",
+          "text_summary": "interaction experiment, name rotate_gesture, 5 FLSs, action rotate, configured duration 40 seconds, grace time 1 seconds, video absent",
+          "embedding": []
+        }
+      ]
+    },
+    {
+      "experiment_path": "fls-experiments/2026-03-25/10-00-00_interaction",
+      "metadata": {
+        "experiment_name": "10-00-00_interaction",
+        "date": "2026-03-25",
+        "timestamp": "2026-03-25T10:00:00Z",
+        "type": "interaction",
+        "notes": ""
+      },
+      "items": [
+        {
+          "id": "experiment_text",
+          "modality": "text",
+          "timestamp": "2026-03-25T10:00:00Z",
+          "source_path": "metadata.json",
+          "text_summary": "interaction experiment, name tap_response, 6 FLSs, action tap, configured duration 50 seconds, grace time 1.5 seconds, video present",
+          "embedding": []
+        }
+      ]
+    },
+    {
+      "experiment_path": "fls-experiments/2026-03-22/14-00-00_illumination",
+      "metadata": {
+        "experiment_name": "14-00-00_illumination",
+        "date": "2026-03-22",
+        "timestamp": "2026-03-22T14:00:00Z",
+        "type": "illumination",
+        "notes": ""
+      },
+      "items": [
+        {
+          "id": "experiment_text",
+          "modality": "text",
+          "timestamp": "2026-03-22T14:00:00Z",
+          "source_path": "metadata.json",
+          "text_summary": "illumination experiment, shape flower, 22 FLSs, duration 75.0 seconds, video present",
+          "embedding": []
+        }
+      ]
+    },
+    {
+      "experiment_path": "fls-experiments/2026-03-18/09-30-00_illumination",
+      "metadata": {
+        "experiment_name": "09-30-00_illumination",
+        "date": "2026-03-18",
+        "timestamp": "2026-03-18T09:30:00Z",
+        "type": "illumination",
+        "notes": ""
+      },
+      "items": [
+        {
+          "id": "experiment_text",
+          "modality": "text",
+          "timestamp": "2026-03-18T09:30:00Z",
+          "source_path": "metadata.json",
+          "text_summary": "illumination experiment, shape petal, 18 FLSs, duration 60.0 seconds, video present",
+          "embedding": []
+        }
+      ]
+    },
+    {
+      "experiment_path": "fls-experiments/2026-03-14/15-25-18_interaction",
+      "metadata": {
+        "experiment_name": "15-25-18_interaction",
+        "date": "2026-03-14",
+        "timestamp": "2026-03-14T15:25:18Z",
+        "type": "interaction",
+        "notes": "Grace time test, 2 second grace period."
+      },
+      "items": [
+        {
+          "id": "experiment_text",
+          "modality": "text",
+          "timestamp": "2026-03-14T15:25:18Z",
+          "source_path": "metadata.json",
+          "text_summary": "interaction experiment, name grace_time_2sec, 1 FLSs, action push, configured duration 84 seconds, grace time 2 seconds, video present",
+          "embedding": []
+        }
+      ]
+    },
+    {
+      "experiment_path": "fls-experiments/2026-03-10/11-00-00_illumination",
+      "metadata": {
+        "experiment_name": "11-00-00_illumination",
+        "date": "2026-03-10",
+        "timestamp": "2026-03-10T11:00:00Z",
+        "type": "illumination",
+        "notes": ""
+      },
+      "items": [
+        {
+          "id": "experiment_text",
+          "modality": "text",
+          "timestamp": "2026-03-10T11:00:00Z",
+          "source_path": "metadata.json",
+          "text_summary": "illumination experiment, shape star, 15 FLSs, duration 55.0 seconds, video absent",
+          "embedding": []
+        }
+      ]
+    },
+    {
+      "experiment_path": "fls-experiments/2026-03-05/14-00-00_interaction",
+      "metadata": {
+        "experiment_name": "14-00-00_interaction",
+        "date": "2026-03-05",
+        "timestamp": "2026-03-05T14:00:00Z",
+        "type": "interaction",
+        "notes": ""
+      },
+      "items": [
+        {
+          "id": "experiment_text",
+          "modality": "text",
+          "timestamp": "2026-03-05T14:00:00Z",
+          "source_path": "metadata.json",
+          "text_summary": "interaction experiment, name proximity_hover, 4 FLSs, action hover, configured duration 30 seconds, grace time 1 seconds, video absent",
+          "embedding": []
+        }
+      ]
+    },
+    {
+      "experiment_path": "fls-experiments/2026-02-20/10-00-00_interaction",
+      "metadata": {
+        "experiment_name": "10-00-00_interaction",
+        "date": "2026-02-20",
+        "timestamp": "2026-02-20T10:00:00Z",
+        "type": "interaction",
+        "notes": ""
+      },
+      "items": [
+        {
+          "id": "experiment_text",
+          "modality": "text",
+          "timestamp": "2026-02-20T10:00:00Z",
+          "source_path": "metadata.json",
+          "text_summary": "interaction experiment, name wave_gesture, 10 FLSs, action wave, configured duration 65 seconds, grace time 2 seconds, video present",
+          "embedding": []
+        }
+      ]
+    },
+    {
+      "experiment_path": "fls-experiments/2026-02-14/09-00-00_illumination",
+      "metadata": {
+        "experiment_name": "09-00-00_illumination",
+        "date": "2026-02-14",
+        "timestamp": "2026-02-14T09:00:00Z",
+        "type": "illumination",
+        "notes": "Valentine's day heart shape."
+      },
+      "items": [
+        {
+          "id": "experiment_text",
+          "modality": "text",
+          "timestamp": "2026-02-14T09:00:00Z",
+          "source_path": "metadata.json",
+          "text_summary": "illumination experiment, shape heart, 30 FLSs, duration 100.0 seconds, video present",
+          "embedding": []
+        }
+      ]
+    },
+    {
+      "experiment_path": "fls-experiments/2026-01-20/11-00-00_illumination",
+      "metadata": {
+        "experiment_name": "11-00-00_illumination",
+        "date": "2026-01-20",
+        "timestamp": "2026-01-20T11:00:00Z",
+        "type": "illumination",
+        "notes": ""
+      },
+      "items": [
+        {
+          "id": "experiment_text",
+          "modality": "text",
+          "timestamp": "2026-01-20T11:00:00Z",
+          "source_path": "metadata.json",
+          "text_summary": "illumination experiment, shape tree, 50 FLSs, duration 150.0 seconds, video present",
+          "embedding": []
+        }
+      ]
+    },
+    {
+      "experiment_path": "fls-experiments/2026-01-17/17-02-35_illumination",
+      "metadata": {
+        "experiment_name": "17-02-35_illumination",
+        "date": "2026-01-17",
+        "timestamp": "2026-01-17T17:02:35Z",
+        "type": "illumination",
+        "notes": ""
+      },
+      "items": [
+        {
+          "id": "experiment_text",
+          "modality": "text",
+          "timestamp": "2026-01-17T17:02:35Z",
+          "source_path": "metadata.json",
+          "text_summary": "illumination experiment, shape happy_emoji, 3 FLSs, duration 45.0 seconds, video absent",
+          "embedding": []
+        }
+      ]
+    },
+    {
+      "experiment_path": "fls-experiments/2026-01-15/14-00-00_interaction",
+      "metadata": {
+        "experiment_name": "14-00-00_interaction",
+        "date": "2026-01-15",
+        "timestamp": "2026-01-15T14:00:00Z",
+        "type": "interaction",
+        "notes": ""
+      },
+      "items": [
+        {
+          "id": "experiment_text",
+          "modality": "text",
+          "timestamp": "2026-01-15T14:00:00Z",
+          "source_path": "metadata.json",
+          "text_summary": "interaction experiment, name multi_touch, 20 FLSs, action touch, configured duration 90 seconds, grace time 3 seconds, video present",
+          "embedding": []
+        }
+      ]
+    }
+  ]
+}
