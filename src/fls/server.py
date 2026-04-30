@@ -10,6 +10,7 @@ import json
 import os
 import sys
 import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from typing import TypedDict
 
@@ -19,6 +20,7 @@ from flask_cors import CORS
 from .config import EXPERIMENTS_PREFIX_DEFAULT
 from .crawler import find_experiments
 from .embedder import Embedder
+from .models import ExperimentListing
 from .storage import DriveStorage
 
 
@@ -61,28 +63,37 @@ def _build_index(storage: DriveStorage, prefix: str) -> None:
         for path, msg in crawl_errors:
             print(f"  Warning: {path}: {msg}", file=sys.stderr)
 
-        experiments: list[ExperimentRecord] = []
+        all_listings = to_process + already_fresh
 
-        for listing in to_process + already_fresh:
+        def _load_one(listing: "ExperimentListing") -> ExperimentRecord:
             items: list[EmbeddingItemRecord] = []
             if "embeddings.json" in listing.files:
+                # Each thread gets its own DriveStorage instance since httplib2
+                # (used internally by the Google API client) is not thread-safe.
+                thread_storage = DriveStorage.from_env()
                 try:
-                    raw = storage.download_file(listing.files["embeddings.json"])
-                    emb = json.loads(raw)
-                    items = emb.get("items", [])
+                    raw = thread_storage.download_file(listing.files["embeddings.json"])
+                    items = json.loads(raw).get("items", [])
                 except Exception as e:
                     print(
                         f"  Warning: could not load embeddings for {listing.drive_path}: {e}",
                         file=sys.stderr,
                     )
-
-            experiments.append(
-                ExperimentRecord(
-                    experiment_path=listing.drive_path,
-                    metadata=listing.metadata,
-                    items=items,
-                )
+            return ExperimentRecord(
+                experiment_path=listing.drive_path,
+                metadata=listing.metadata,
+                items=items,
             )
+
+        experiments: list[ExperimentRecord] = []
+        with ThreadPoolExecutor(max_workers=8) as pool:
+            futures = {pool.submit(_load_one, listing): listing for listing in all_listings}
+            for future in as_completed(futures):
+                try:
+                    experiments.append(future.result())
+                except Exception as e:
+                    listing = futures[future]
+                    print(f"  Warning: failed to load {listing.drive_path}: {e}", file=sys.stderr)
 
         _index = ExperimentsIndex(
             generated_at=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
