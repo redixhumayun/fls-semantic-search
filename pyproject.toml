@@ -24,10 +24,20 @@ embed = [
     "transformers>=5.0",
     "pyyaml>=6.0",
 ]
+server = [
+    "flask>=3.0",
+    "flask-cors>=4.0",
+    "av>=12.0",
+    "Pillow>=10.0",
+    "torch>=2.0",
+    "transformers>=5.0",
+    "pyyaml>=6.0",
+]
 
 [project.scripts]
 fls-upload = "fls.upload:cli"
 fls-embed = "fls.embed:cli"
+fls-server = "fls.server:cli"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/fls"]
