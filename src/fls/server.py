@@ -14,7 +14,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from typing import TypedDict
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, Response
 from flask_cors import CORS
 
 from .config import EXPERIMENTS_PREFIX_DEFAULT
@@ -48,13 +48,14 @@ app = Flask(__name__)
 CORS(app)
 
 _index: ExperimentsIndex = {"generated_at": "", "experiments": []}
+_image_ids: dict[str, str] = {}   # full drive path → Drive file ID
 _embedder: Embedder | None = None
 _loading: bool = True
 _load_error: str | None = None
 
 
 def _build_index(storage: DriveStorage, prefix: str) -> None:
-    global _index, _loading, _load_error
+    global _index, _image_ids, _loading, _load_error
     try:
         print("Scanning Drive for experiments...")
         to_process, already_fresh, crawl_errors = find_experiments(
@@ -65,8 +66,9 @@ def _build_index(storage: DriveStorage, prefix: str) -> None:
 
         all_listings = to_process + already_fresh
 
-        def _load_one(listing: "ExperimentListing") -> ExperimentRecord:
+        def _load_one(listing: "ExperimentListing") -> tuple[ExperimentRecord, dict[str, str]]:
             items: list[EmbeddingItemRecord] = []
+            image_ids: dict[str, str] = {}
             if "embeddings.json" in listing.files:
                 # Each thread gets its own DriveStorage instance since httplib2
                 # (used internally by the Google API client) is not thread-safe.
@@ -74,23 +76,40 @@ def _build_index(storage: DriveStorage, prefix: str) -> None:
                 try:
                     raw = thread_storage.download_file(listing.files["embeddings.json"])
                     items = json.loads(raw).get("items", [])
+
+                    has_images = any(i.get("modality") == "image" for i in items)
+                    if has_images:
+                        for child in thread_storage.list_folder(listing.folder_id):
+                            if (child["name"] == "snapshots"
+                                    and child["mimeType"] == "application/vnd.google-apps.folder"):
+                                for f in thread_storage.list_folder(child["id"]):
+                                    if f["mimeType"] != "application/vnd.google-apps.folder":
+                                        key = f"{listing.drive_path}/snapshots/{f['name']}"
+                                        image_ids[key] = f["id"]
+                                break
                 except Exception as e:
                     print(
                         f"  Warning: could not load embeddings for {listing.drive_path}: {e}",
                         file=sys.stderr,
                     )
-            return ExperimentRecord(
-                experiment_path=listing.drive_path,
-                metadata=listing.metadata,
-                items=items,
+            return (
+                ExperimentRecord(
+                    experiment_path=listing.drive_path,
+                    metadata=listing.metadata,
+                    items=items,
+                ),
+                image_ids,
             )
 
         experiments: list[ExperimentRecord] = []
+        collected_image_ids: dict[str, str] = {}
         with ThreadPoolExecutor(max_workers=8) as pool:
             futures = {pool.submit(_load_one, listing): listing for listing in all_listings}
             for future in as_completed(futures):
                 try:
-                    experiments.append(future.result())
+                    record, ids = future.result()
+                    experiments.append(record)
+                    collected_image_ids.update(ids)
                 except Exception as e:
                     listing = futures[future]
                     print(f"  Warning: failed to load {listing.drive_path}: {e}", file=sys.stderr)
@@ -99,6 +118,7 @@ def _build_index(storage: DriveStorage, prefix: str) -> None:
             generated_at=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             experiments=experiments,
         )
+        _image_ids = collected_image_ids
         print(f"Index ready: {len(experiments)} experiment(s) loaded.")
     except Exception as e:
         _load_error = str(e)
@@ -125,6 +145,23 @@ def embed():
         return jsonify({"error": "request body must be JSON with a 'text' field"}), 400
     embedding: list[float] = _embedder.embed_text(data["text"])
     return jsonify({"embedding": embedding})
+
+
+@app.get("/api/image")
+def get_image():
+    path = request.args.get("path", "")
+    if not path:
+        return jsonify({"error": "path parameter required"}), 400
+    file_id = _image_ids.get(path)
+    if not file_id:
+        return jsonify({"error": "image not found"}), 404
+    try:
+        img_storage = DriveStorage.from_env()
+        data = img_storage.download_file(file_id)
+        mime = "image/jpeg" if path.lower().endswith((".jpg", ".jpeg")) else "image/png"
+        return Response(data, mimetype=mime)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @app.get("/api/status")

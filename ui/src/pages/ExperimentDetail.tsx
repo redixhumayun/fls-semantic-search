@@ -127,10 +127,20 @@ export default function ExperimentDetail() {
                 const offset = getSnapshotOffset(snap.id)
                 return (
                   <div key={snap.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-                    <div className={`h-32 flex items-center justify-center ${
+                    <div className={`h-32 flex items-center justify-center overflow-hidden ${
                       isIllumination ? 'bg-amber-50' : 'bg-violet-50'
                     }`}>
-                      <ImageOff size={24} className="text-slate-300" />
+                      <img
+                        src={`/api/image?path=${encodeURIComponent(`${exp.experiment_path}/${snap.source_path}`)}`}
+                        alt={label}
+                        className="w-full h-full object-cover"
+                        onError={e => {
+                          const target = e.currentTarget
+                          target.style.display = 'none'
+                          target.nextElementSibling?.removeAttribute('hidden')
+                        }}
+                      />
+                      <ImageOff size={24} className="text-slate-300" hidden />
                     </div>
                     <div className="px-3 py-2">
                       <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${
