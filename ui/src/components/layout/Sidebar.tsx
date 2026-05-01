@@ -47,7 +47,7 @@ export default function Sidebar() {
         </nav>
       </div>
 
-      <div className="px-5 py-4 flex items-center gap-2.5">
+      <div className="mt-auto px-5 py-4 flex items-center gap-2.5">
         <img src="/nsf-logo.png" alt="NSF" className="w-7 h-7 opacity-70" />
         <span className="text-slate-500 text-xs">NSF Funded</span>
       </div>
