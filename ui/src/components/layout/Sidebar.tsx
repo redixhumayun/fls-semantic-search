@@ -47,7 +47,12 @@ export default function Sidebar() {
         </nav>
       </div>
 
-      <div className="mt-auto px-5 py-4 border-t border-slate-700">
+      <div className="px-5 py-4 flex items-center gap-2.5">
+        <img src="/nsf-logo.png" alt="NSF" className="w-7 h-7 opacity-70" />
+        <span className="text-slate-500 text-xs">NSF Funded</span>
+      </div>
+
+      <div className="px-5 py-4 border-t border-slate-700">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-semibold">
             R
