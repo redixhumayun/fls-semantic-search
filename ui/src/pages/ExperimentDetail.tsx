@@ -84,7 +84,24 @@ export default function ExperimentDetail() {
           </button>
           <h1 className="text-xl font-semibold text-slate-900">Experiment Detail</h1>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50 transition-colors">
+        <button
+          onClick={() => {
+            const payload = {
+              experiment_path: exp.experiment_path,
+              folder_date: exp.folder_date,
+              metadata: exp.metadata,
+              items: exp.items.map(({ embedding: _e, ...rest }) => rest),
+            }
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `${exp.folder_date}_${exp.metadata.experiment_name.replace(/\s+/g, '-')}.json`
+            a.click()
+            URL.revokeObjectURL(url)
+          }}
+          className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+        >
           <Download size={14} />Export
         </button>
       </div>
