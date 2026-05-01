@@ -1,12 +1,60 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Search, Lightbulb, Hand, Sparkles, ServerCrash } from 'lucide-react'
+import { Search, Lightbulb, Hand, Sparkles, ServerCrash, SlidersHorizontal, ChevronDown, ChevronUp, X } from 'lucide-react'
 import { useIndex } from '../context/IndexContext'
 import { search, buildAISummary, EmbedServerError } from '../lib/search'
-import { experimentTitle, formatDate, formatTime, parseDuration, encodeExpPath } from '../lib/utils'
-import type { SearchResult } from '../types'
+import {
+  experimentTitle, formatDate, formatTime, parseDuration,
+  parseDurationSeconds, parseFLSCount, parseShape, parseInteractionName, encodeExpPath,
+} from '../lib/utils'
+import type { Experiment, SearchResult } from '../types'
 
 type TypeFilter = 'all' | 'interaction' | 'illumination'
+
+interface Filters {
+  minFLS: string
+  maxFLS: string
+  minDuration: string
+  maxDuration: string
+  shape: string
+  interactionName: string
+  hasVideo: string  // 'any' | 'yes' | 'no'
+}
+
+const DEFAULT_FILTERS: Filters = {
+  minFLS: '', maxFLS: '',
+  minDuration: '', maxDuration: '',
+  shape: '', interactionName: '',
+  hasVideo: 'any',
+}
+
+function countActiveFilters(f: Filters): number {
+  return [
+    f.minFLS, f.maxFLS, f.minDuration, f.maxDuration, f.shape, f.interactionName,
+  ].filter(Boolean).length + (f.hasVideo !== 'any' ? 1 : 0)
+}
+
+function applyFilters(exps: Experiment[], filters: Filters): Experiment[] {
+  return exps.filter(e => {
+    const summary = e.items.find(i => i.id === 'experiment_text')?.text_summary ?? ''
+    const fls = parseFLSCount(summary)
+    const dur = parseDurationSeconds(summary)
+    const shape = parseShape(summary)
+    const intName = parseInteractionName(summary)
+    const hasVideo = summary.includes('video present')
+
+    if (filters.minFLS && fls < parseInt(filters.minFLS)) return false
+    if (filters.maxFLS && fls > parseInt(filters.maxFLS)) return false
+    if (filters.minDuration && dur < parseFloat(filters.minDuration)) return false
+    if (filters.maxDuration && dur > parseFloat(filters.maxDuration)) return false
+    if (filters.shape && shape !== filters.shape) return false
+    if (filters.interactionName && intName !== filters.interactionName) return false
+    if (filters.hasVideo === 'yes' && !hasVideo) return false
+    if (filters.hasVideo === 'no' && hasVideo) return false
+
+    return true
+  })
+}
 
 function TypeBadge({ type }: { type: 'interaction' | 'illumination' }) {
   if (type === 'illumination') {
@@ -79,16 +127,40 @@ export default function SearchResults() {
   const [aiSummary, setAiSummary] = useState('')
   const [searching, setSearching] = useState(false)
   const [searchError, setSearchError] = useState<string | null>(null)
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS)
 
-  const runSearch = useCallback(async (q: string, type: TypeFilter, date: string) => {
+  const uniqueShapes = useMemo(() => {
+    const shapes = new Set<string>()
+    experiments.forEach(e => {
+      if (e.metadata.type !== 'illumination') return
+      const s = parseShape(e.items.find(i => i.id === 'experiment_text')?.text_summary ?? '')
+      if (s) shapes.add(s)
+    })
+    return Array.from(shapes).sort()
+  }, [experiments])
+
+  const uniqueInteractionNames = useMemo(() => {
+    const names = new Set<string>()
+    experiments.forEach(e => {
+      if (e.metadata.type !== 'interaction') return
+      const n = parseInteractionName(e.items.find(i => i.id === 'experiment_text')?.text_summary ?? '')
+      if (n) names.add(n)
+    })
+    return Array.from(names).sort()
+  }, [experiments])
+
+  const runSearch = useCallback(async (q: string, type: TypeFilter, date: string, f: Filters) => {
     if (!q && !date) { setResults([]); setAiSummary(''); setSearchError(null); return }
     setSearching(true)
     setSearchError(null)
     try {
       let exps = date ? experiments.filter(e => e.folder_date === date) : experiments
-      const res = q ? await search(exps, q, type) : exps
-        .filter(e => type === 'all' || e.metadata.type === type)
-        .map(e => ({ experiment: e, score: 1, textItem: e.items.find(i => i.id === 'experiment_text') ?? e.items[0] }))
+      exps = exps.filter(e => type === 'all' || e.metadata.type === type)
+      exps = applyFilters(exps, f)
+      const res = q
+        ? await search(exps, q, 'all')
+        : exps.map(e => ({ experiment: e, score: 1, textItem: e.items.find(i => i.id === 'experiment_text') ?? e.items[0] }))
       setResults(res)
       setAiSummary(buildAISummary(res, q || `date: ${date}`))
     } catch (e) {
@@ -101,8 +173,8 @@ export default function SearchResults() {
   }, [experiments])
 
   useEffect(() => {
-    runSearch(queryParam, typeParam, dateParam)
-  }, [queryParam, typeParam, dateParam, runSearch])
+    runSearch(queryParam, typeParam, dateParam, filters)
+  }, [queryParam, typeParam, dateParam, filters, runSearch])
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -112,6 +184,16 @@ export default function SearchResults() {
   function setTypeFilter(type: TypeFilter) {
     setSearchParams({ q: queryParam, type, ...(dateParam ? { date: dateParam } : {}) })
   }
+
+  function setFilter<K extends keyof Filters>(key: K, value: Filters[K]) {
+    setFilters(prev => ({ ...prev, [key]: value }))
+  }
+
+  function clearFilters() {
+    setFilters(DEFAULT_FILTERS)
+  }
+
+  const activeFilterCount = countActiveFilters(filters)
 
   return (
     <div className="flex flex-col h-screen">
@@ -145,7 +227,7 @@ export default function SearchResults() {
         )}
 
         {/* Filter row */}
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-center gap-3 mb-3">
           <span className="text-sm text-slate-500">{results.length} result{results.length !== 1 ? 's' : ''} found</span>
           <div className="flex gap-1">
             {(['all', 'illumination', 'interaction'] as TypeFilter[]).map(t => (
@@ -162,7 +244,127 @@ export default function SearchResults() {
               </button>
             ))}
           </div>
+          <button
+            onClick={() => setFiltersOpen(o => !o)}
+            className={`ml-auto flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm transition-colors ${
+              activeFilterCount > 0
+                ? 'border-blue-300 bg-blue-50 text-blue-700'
+                : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+            }`}
+          >
+            <SlidersHorizontal size={14} />
+            Filters
+            {activeFilterCount > 0 && (
+              <span className="bg-blue-500 text-white text-xs font-semibold rounded-full w-4 h-4 flex items-center justify-center">
+                {activeFilterCount}
+              </span>
+            )}
+            {filtersOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          </button>
         </div>
+
+        {/* Collapsible filter panel */}
+        {filtersOpen && (
+          <div className="bg-white border border-slate-200 rounded-xl px-5 py-4 mb-4">
+            <div className="grid grid-cols-4 gap-4">
+              {/* FLS Count */}
+              <div>
+                <label className="text-xs font-medium text-slate-500 block mb-1.5">FLS Count</label>
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="number" min={0} placeholder="Min"
+                    value={filters.minFLS}
+                    onChange={e => setFilter('minFLS', e.target.value)}
+                    className="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm text-slate-700 outline-none focus:border-blue-400"
+                  />
+                  <span className="text-slate-300 text-xs">—</span>
+                  <input
+                    type="number" min={0} placeholder="Max"
+                    value={filters.maxFLS}
+                    onChange={e => setFilter('maxFLS', e.target.value)}
+                    className="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm text-slate-700 outline-none focus:border-blue-400"
+                  />
+                </div>
+              </div>
+
+              {/* Duration */}
+              <div>
+                <label className="text-xs font-medium text-slate-500 block mb-1.5">Duration (seconds)</label>
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="number" min={0} placeholder="Min"
+                    value={filters.minDuration}
+                    onChange={e => setFilter('minDuration', e.target.value)}
+                    className="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm text-slate-700 outline-none focus:border-blue-400"
+                  />
+                  <span className="text-slate-300 text-xs">—</span>
+                  <input
+                    type="number" min={0} placeholder="Max"
+                    value={filters.maxDuration}
+                    onChange={e => setFilter('maxDuration', e.target.value)}
+                    className="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm text-slate-700 outline-none focus:border-blue-400"
+                  />
+                </div>
+              </div>
+
+              {/* Shape */}
+              <div>
+                <label className="text-xs font-medium text-slate-500 block mb-1.5">Shape</label>
+                <select
+                  value={filters.shape}
+                  onChange={e => setFilter('shape', e.target.value)}
+                  disabled={typeParam === 'interaction'}
+                  className="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm text-slate-700 outline-none focus:border-blue-400 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <option value="">Any</option>
+                  {uniqueShapes.map(s => (
+                    <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Interaction name */}
+              <div>
+                <label className="text-xs font-medium text-slate-500 block mb-1.5">Interaction</label>
+                <select
+                  value={filters.interactionName}
+                  onChange={e => setFilter('interactionName', e.target.value)}
+                  disabled={typeParam === 'illumination'}
+                  className="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm text-slate-700 outline-none focus:border-blue-400 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <option value="">Any</option>
+                  {uniqueInteractionNames.map(n => (
+                    <option key={n} value={n}>{n.charAt(0).toUpperCase() + n.slice(1)}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Second row: has video + clear */}
+            <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-100">
+              <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
+                <span className="text-xs font-medium text-slate-500">Video</span>
+                <select
+                  value={filters.hasVideo}
+                  onChange={e => setFilter('hasVideo', e.target.value)}
+                  className="border border-slate-200 rounded-lg px-2.5 py-1 text-sm text-slate-700 outline-none focus:border-blue-400"
+                >
+                  <option value="any">Any</option>
+                  <option value="yes">Present</option>
+                  <option value="no">Absent</option>
+                </select>
+              </label>
+              {activeFilterCount > 0 && (
+                <button
+                  onClick={clearFilters}
+                  className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  <X size={12} /> Clear all filters
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* AI Summary */}
         {aiSummary && (

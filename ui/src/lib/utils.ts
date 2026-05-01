@@ -20,6 +20,11 @@ export function parseDuration(summary: string): string {
   return `${Math.round(parseFloat(m[1]))}s`
 }
 
+export function parseDurationSeconds(summary: string): number {
+  const m = summary.match(/duration (\d+(?:\.\d+)?) seconds/)
+  return m ? parseFloat(m[1]) : 0
+}
+
 export function parseFLSCount(summary: string): number {
   const m = summary.match(/(\d+) FLSs?/)
   return m ? parseInt(m[1]) : 0
