@@ -88,7 +88,7 @@ export default function SearchResults() {
     setSearching(true)
     setSearchError(null)
     try {
-      let exps = date ? experiments.filter(e => e.metadata.date === date) : experiments
+      let exps = date ? experiments.filter(e => e.folder_date === date) : experiments
       const res = q ? await search(exps, q, type) : exps
         .filter(e => type === 'all' || e.metadata.type === type)
         .map(e => ({ experiment: e, score: 1, textItem: e.items.find(i => i.id === 'experiment_text') ?? e.items[0] }))

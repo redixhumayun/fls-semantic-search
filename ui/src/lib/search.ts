@@ -62,7 +62,7 @@ export function buildAISummary(results: SearchResult[], query: string): string {
   if (results.length === 0) return `No experiments found matching "${query}".`
   const illumination = results.filter(r => r.experiment.metadata.type === 'illumination').length
   const interaction = results.filter(r => r.experiment.metadata.type === 'interaction').length
-  const dates = results.map(r => r.experiment.metadata.date).sort()
+  const dates = results.map(r => r.experiment.folder_date).sort()
   const dateRange = dates.length > 1
     ? `between ${formatShortDate(dates[0])} and ${formatShortDate(dates[dates.length - 1])}`
     : `on ${formatShortDate(dates[0])}`

@@ -62,7 +62,7 @@ function capitalize(s: string): string {
 export function experimentsByDate(experiments: Experiment[]): Record<string, Experiment[]> {
   const map: Record<string, Experiment[]> = {}
   for (const exp of experiments) {
-    const date = exp.metadata.date
+    const date = exp.folder_date
     if (!map[date]) map[date] = []
     map[date].push(exp)
   }

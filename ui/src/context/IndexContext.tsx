@@ -39,7 +39,12 @@ export function IndexProvider({ children }: { children: ReactNode }) {
           pollRef.current = setTimeout(load, 2000)
           return
         }
-        setExperiments(data.experiments ?? [])
+        setExperiments(
+          (data.experiments ?? []).map(e => ({
+            ...e,
+            folder_date: e.experiment_path.split('/')[1] ?? '',
+          }))
+        )
         setLoading(false)
       } catch (e) {
         if (cancelled) return
@@ -61,7 +66,7 @@ export function IndexProvider({ children }: { children: ReactNode }) {
     total: experiments.length,
     interaction: experiments.filter(e => e.metadata.type === 'interaction').length,
     illumination: experiments.filter(e => e.metadata.type === 'illumination').length,
-    thisMonth: experiments.filter(e => e.metadata.date.startsWith(thisMonthStr)).length,
+    thisMonth: experiments.filter(e => e.folder_date.startsWith(thisMonthStr)).length,
   }
 
   return (

@@ -17,6 +17,7 @@ export interface ExperimentMetadata {
 
 export interface Experiment {
   experiment_path: string
+  folder_date: string   // YYYY-MM-DD extracted from experiment_path — use this for date logic
   metadata: ExperimentMetadata
   items: EmbeddingItem[]
 }
