@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Search, Lightbulb, Hand, ArrowRight, Sparkles, ServerCrash } from 'lucide-react'
+import { Search, Lightbulb, Hand, Sparkles, ServerCrash } from 'lucide-react'
 import { useIndex } from '../context/IndexContext'
 import { search, buildAISummary, EmbedServerError } from '../lib/search'
 import { experimentTitle, formatDate, formatTime, parseDuration, encodeExpPath } from '../lib/utils'
@@ -34,7 +34,10 @@ function ResultCard({ result, onClick }: { result: SearchResult; onClick: () => 
   const duration = parseDuration(textItem?.text_summary ?? '')
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-5 flex gap-4 hover:border-slate-300 transition-colors">
+    <div
+      onClick={onClick}
+      className="bg-white rounded-xl border border-slate-200 p-5 flex gap-4 hover:border-slate-300 hover:shadow-sm transition-all cursor-pointer"
+    >
       <div className={`w-28 h-28 rounded-lg flex items-center justify-center flex-shrink-0 ${
         exp.metadata.type === 'illumination' ? 'bg-amber-50' : 'bg-violet-50'
       }`}>
@@ -57,12 +60,6 @@ function ResultCard({ result, onClick }: { result: SearchResult; onClick: () => 
         {duration && (
           <p className="text-sm text-slate-400 mt-0.5">Duration: {duration}</p>
         )}
-        <button
-          onClick={onClick}
-          className="mt-3 inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium"
-        >
-          View <ArrowRight size={14} />
-        </button>
       </div>
     </div>
   )
