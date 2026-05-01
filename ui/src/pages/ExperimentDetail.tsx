@@ -102,7 +102,7 @@ export default function ExperimentDetail() {
               </span>
               <h2 className="text-2xl font-bold text-slate-900">{experimentTitle(exp)}</h2>
               <p className="text-sm text-slate-500 mt-1">
-                {formatDate(exp.metadata.timestamp)} · {formatTime(exp.metadata.timestamp)} · Duration: {duration} · {flsCount} FLSs
+                {formatDate(exp.folder_date + 'T00:00:00')} · {formatTime(exp.metadata.timestamp)} · Duration: {duration} · {flsCount} FLSs
                 {shape ? ` · Shape: ${shape}` : ''}
                 {action ? ` · Action: ${action}` : ''}
               </p>
@@ -160,7 +160,7 @@ export default function ExperimentDetail() {
               {action && <MetaField label="Action" value={action} />}
               <MetaField label="FLS Count" value={String(flsCount)} />
               <MetaField label="Duration" value={duration ? `${duration.replace('s', ' seconds')}` : '—'} />
-              <MetaField label="Date" value={formatDate(exp.metadata.timestamp)} />
+              <MetaField label="Date" value={formatDate(exp.folder_date + 'T00:00:00')} />
               <MetaField label="Time" value={formatTime(exp.metadata.timestamp)} />
               <MetaField label="Video" value={summary.includes('video present') ? 'Available' : 'Not available'} />
             </div>

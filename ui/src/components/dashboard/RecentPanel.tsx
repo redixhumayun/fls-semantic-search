@@ -67,7 +67,7 @@ export default function RecentPanel({ experiments }: RecentPanelProps) {
                   {experimentTitle(exp)}
                 </p>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  {formatDate(exp.metadata.timestamp)} · {formatTime(exp.metadata.timestamp)}
+                  {formatDate(exp.folder_date + 'T00:00:00')} · {formatTime(exp.metadata.timestamp)}
                   {duration && ` · ${duration}`}
                 </p>
               </div>

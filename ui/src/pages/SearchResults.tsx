@@ -52,7 +52,7 @@ function ResultCard({ result, onClick }: { result: SearchResult; onClick: () => 
           {experimentTitle(exp)}
         </h3>
         <p className="text-sm text-slate-500 mt-0.5">
-          {formatDate(exp.metadata.timestamp)} · {formatTime(exp.metadata.timestamp)}
+          {formatDate(exp.folder_date + 'T00:00:00')} · {formatTime(exp.metadata.timestamp)}
         </p>
         {duration && (
           <p className="text-sm text-slate-400 mt-0.5">Duration: {duration}</p>
