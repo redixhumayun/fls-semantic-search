@@ -5,14 +5,14 @@ interface IndexContextValue {
   experiments: Experiment[]
   loading: boolean
   error: string | null
-  totalCounts: { total: number; interaction: number; illumination: number; thisMonth: number }
+  totalCounts: { total: number; interaction: number; illumination: number }
 }
 
 const IndexContext = createContext<IndexContextValue>({
   experiments: [],
   loading: true,
   error: null,
-  totalCounts: { total: 0, interaction: 0, illumination: 0, thisMonth: 0 },
+  totalCounts: { total: 0, interaction: 0, illumination: 0 },
 })
 
 async function fetchExperiments(): Promise<EmbeddingsIndex> {
@@ -60,13 +60,10 @@ export function IndexProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const now = new Date()
-  const thisMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
   const totalCounts = {
     total: experiments.length,
     interaction: experiments.filter(e => e.metadata.type === 'interaction').length,
     illumination: experiments.filter(e => e.metadata.type === 'illumination').length,
-    thisMonth: experiments.filter(e => e.folder_date.startsWith(thisMonthStr)).length,
   }
 
   return (

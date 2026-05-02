@@ -41,9 +41,8 @@ export default function Dashboard() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-3 gap-4 mb-6">
               <StatCard value={totalCounts.total} label="Total Experiments" accentColor="bg-blue-500" />
-              <StatCard value={totalCounts.thisMonth} label="This Month" accentColor="bg-emerald-500" />
               <StatCard value={totalCounts.interaction} label="Interaction" accentColor="bg-violet-500" />
               <StatCard value={totalCounts.illumination} label="Illumination" accentColor="bg-amber-500" />
             </div>
